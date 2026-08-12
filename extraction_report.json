@@ -1,0 +1,119 @@
+{
+  "sencgru_kernel": {
+    "shape": [
+      1,
+      96
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": -1.0,
+    "raw_max": 0.9999990463256836,
+    "fake_quant_min": -0.9921875,
+    "fake_quant_max": 0.9921875,
+    "int8_min": -127,
+    "int8_max": 127,
+    "n_saturated": 0
+  },
+  "sencgru_recurrent_kernel": {
+    "shape": [
+      32,
+      96
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": -0.9495655298233032,
+    "raw_max": 0.5277795195579529,
+    "fake_quant_min": -0.953125,
+    "fake_quant_max": 0.53125,
+    "int8_min": -122,
+    "int8_max": 68,
+    "n_saturated": 0
+  },
+  "sencgru_bias": {
+    "shape": [
+      96
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": -0.2490534633398056,
+    "raw_max": 0.2079135775566101,
+    "fake_quant_min": -0.25,
+    "fake_quant_max": 0.2109375,
+    "int8_min": -32,
+    "int8_max": 27,
+    "n_saturated": 0
+  },
+  "sdecgru_kernel": {
+    "shape": [
+      1,
+      96
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": -0.24210703372955322,
+    "raw_max": 0.24535785615444183,
+    "fake_quant_min": -0.2421875,
+    "fake_quant_max": 0.2421875,
+    "int8_min": -31,
+    "int8_max": 31,
+    "n_saturated": 0
+  },
+  "sdecgru_recurrent_kernel": {
+    "shape": [
+      32,
+      96
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": -0.6205873489379883,
+    "raw_max": 0.861627995967865,
+    "fake_quant_min": -0.6171875,
+    "fake_quant_max": 0.859375,
+    "int8_min": -79,
+    "int8_max": 110,
+    "n_saturated": 0
+  },
+  "sdecgru_bias": {
+    "shape": [
+      96
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": -0.16819484531879425,
+    "raw_max": 0.3331429958343506,
+    "fake_quant_min": -0.171875,
+    "fake_quant_max": 0.3359375,
+    "int8_min": -22,
+    "int8_max": 43,
+    "n_saturated": 0
+  },
+  "sdec_dense_kernel": {
+    "shape": [
+      32,
+      3
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": -0.701556384563446,
+    "raw_max": 0.5544459223747253,
+    "fake_quant_min": -0.703125,
+    "fake_quant_max": 0.5546875,
+    "int8_min": -90,
+    "int8_max": 71,
+    "n_saturated": 0
+  },
+  "sdec_dense_bias": {
+    "shape": [
+      3
+    ],
+    "bits": 8,
+    "step": 0.0078125,
+    "raw_min": 0.01642603799700737,
+    "raw_max": 0.028092052787542343,
+    "fake_quant_min": 0.015625,
+    "fake_quant_max": 0.03125,
+    "int8_min": 2,
+    "int8_max": 4,
+    "n_saturated": 0
+  }
+}
