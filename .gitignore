@@ -1,0 +1,8 @@
+seq2seqlite_student_proj/*/.autopilot/
+seq2seqlite_student_proj/*/.Xil/
+seq2seqlite_student_proj/*/csim/build/
+seq2seqlite_student_proj/*/sim/
+vitis_hls.log
+*.jou
+*.str
+*.log
