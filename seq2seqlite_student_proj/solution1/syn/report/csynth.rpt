@@ -1,0 +1,736 @@
+
+
+================================================================
+== Synthesis Summary Report of 'student_infer_pixel'
+================================================================
++ General Information: 
+    * Date:           Fri Aug 14 15:47:01 2026
+    * Version:        2022.2 (Build 3670227 on Oct 13 2022)
+    * Project:        seq2seqlite_student_proj
+    * Solution:       solution1 (Vivado IP Flow Target)
+    * Product family: kintex7
+    * Target device:  xc7k410t-ffg676-1
+    
+
++ Performance & Resource Estimates: 
+    
+    PS: '+' for module; 'o' for loop; '*' for dataflow
+    +---------------------------------------------------+------+------+---------+-----------+----------+---------+------+----------+------+-----------+------------+-------------+-----+
+    |                      Modules                      | Issue|      | Latency |  Latency  | Iteration|         | Trip |          |      |           |            |             |     |
+    |                      & Loops                      | Type | Slack| (cycles)|    (ns)   |  Latency | Interval| Count| Pipelined| BRAM |    DSP    |     FF     |     LUT     | URAM|
+    +---------------------------------------------------+------+------+---------+-----------+----------+---------+------+----------+------+-----------+------------+-------------+-----+
+    |+ student_infer_pixel                              |     -|  0.03|   109223|  4.915e+05|         -|   109224|     -|        no|     -|  154 (10%)|  49965 (9%)|  38540 (15%)|    -|
+    | o VITIS_LOOP_169_2                                |     -|  3.28|    51300|  2.308e+05|       380|        -|   135|        no|     -|          -|           -|            -|    -|
+    |  + gru_cell_step                                  |     -|  0.03|      360|  1.620e+03|         -|      360|     -|        no|     -|    49 (3%)|  17456 (3%)|   14240 (5%)|    -|
+    |   + gru_cell_step_Pipeline_VITIS_LOOP_48_1        |     -|  0.28|      159|    715.500|         -|      159|     -|        no|     -|   14 (~0%)|   9728 (1%)|    4683 (1%)|    -|
+    |    o VITIS_LOOP_48_1                              |     -|  3.28|      157|    706.500|        34|        4|    32|       yes|     -|          -|           -|            -|    -|
+    |   + gru_cell_step_Pipeline_VITIS_LOOP_94_5        |     -|  0.04|      173|    778.500|         -|      173|     -|        no|     -|    2 (~0%)|  4982 (~0%)|    2969 (1%)|    -|
+    |    o VITIS_LOOP_94_5                              |     -|  3.28|      171|    769.500|        48|        4|    32|       yes|     -|          -|           -|            -|    -|
+    | o VITIS_LOOP_192_5                                |     -|  3.28|    57915|  2.606e+05|       429|        -|   135|        no|     -|          -|           -|            -|    -|
+    |  + gru_cell_step_1                                |     -|  0.03|      359|  1.616e+03|         -|      359|     -|        no|     -|    50 (3%)|  17629 (3%)|   13841 (5%)|    -|
+    |   + gru_cell_step_1_Pipeline_VITIS_LOOP_48_1      |     -|  0.28|      159|    715.500|         -|      159|     -|        no|     -|    16 (1%)|  10025 (1%)|    4511 (1%)|    -|
+    |    o VITIS_LOOP_48_1                              |     -|  3.28|      157|    706.500|        34|        4|    32|       yes|     -|          -|           -|            -|    -|
+    |   + gru_cell_step_1_Pipeline_VITIS_LOOP_94_5      |     -|  0.04|      172|    774.000|         -|      172|     -|        no|     -|    2 (~0%)|  4891 (~0%)|    2894 (1%)|    -|
+    |    o VITIS_LOOP_94_5                              |     -|  3.28|      170|    765.000|        47|        4|    32|       yes|     -|          -|           -|            -|    -|
+    |  + student_infer_pixel_Pipeline_VITIS_LOOP_210_7  |     -|  0.07|       50|    225.000|         -|       50|     -|        no|     -|    2 (~0%)|  4920 (~0%)|    2622 (1%)|    -|
+    |   o VITIS_LOOP_210_7                              |     -|  3.28|       48|    216.000|        41|        4|     3|       yes|     -|          -|           -|            -|    -|
+    +---------------------------------------------------+------+------+---------+-----------+----------+---------+------+----------+------+-----------+------------+-------------+-----+
+
+
+================================================================
+== HW Interfaces
+================================================================
+* AP_MEMORY
++------------------+----------+
+| Interface        | Bitwidth |
++------------------+----------+
+| sfd_out_address0 | 9        |
+| sfd_out_d0       | 16       |
+| tpsf_in_address0 | 8        |
+| tpsf_in_q0       | 16       |
++------------------+----------+
+
+* TOP LEVEL CONTROL
++-----------+------------+-----------------------------------+
+| Interface | Type       | Ports                             |
++-----------+------------+-----------------------------------+
+| ap_clk    | clock      | ap_clk                            |
+| ap_rst    | reset      | ap_rst                            |
+| ap_ctrl   | ap_ctrl_hs | ap_done ap_idle ap_ready ap_start |
++-----------+------------+-----------------------------------+
+
+
+================================================================
+== SW I/O Information
+================================================================
+* Top Function Arguments
++----------+-----------+--------------------------------------+
+| Argument | Direction | Datatype                             |
++----------+-----------+--------------------------------------+
+| tpsf_in  | in        | ap_fixed<16, 2, AP_TRN, AP_WRAP, 0>* |
+| sfd_out  | out       | ap_fixed<16, 6, AP_RND, AP_SAT, 0>*  |
++----------+-----------+--------------------------------------+
+
+* SW-to-HW Mapping
++----------+------------------+---------+----------+
+| Argument | HW Interface     | HW Type | HW Usage |
++----------+------------------+---------+----------+
+| tpsf_in  | tpsf_in_address0 | port    | offset   |
+| tpsf_in  | tpsf_in_ce0      | port    |          |
+| tpsf_in  | tpsf_in_q0       | port    |          |
+| sfd_out  | sfd_out_address0 | port    | offset   |
+| sfd_out  | sfd_out_ce0      | port    |          |
+| sfd_out  | sfd_out_we0      | port    |          |
+| sfd_out  | sfd_out_d0       | port    |          |
++----------+------------------+---------+----------+
+
+
+================================================================
+== Bind Op Report
+================================================================
++--------------------------------------------------+-----+--------+---------------+-----+--------+---------+
+| Name                                             | DSP | Pragma | Variable      | Op  | Impl   | Latency |
++--------------------------------------------------+-----+--------+---------------+-----+--------+---------+
+| + student_infer_pixel                            | 154 |        |               |     |        |         |
+|   mul_23s_23s_46_5_1_U930                        | -   |        | add_ln169     | add | fabric | 0       |
+|   add_ln192_fu_2702_p2                           | -   |        | add_ln192     | add | fabric | 0       |
+|   sub_ln219_fu_2720_p2                           | -   |        | sub_ln219     | sub | fabric | 0       |
+|  + gru_cell_step                                 | 49  |        |               |     |        |         |
+|    mul_mul_14ns_15s_29_4_1_U310                  | 1   |        | r_V_403       | mul | dsp48  | 3       |
+|    p_Val2_163_fu_1708_p2                         | -   |        | p_Val2_163    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U311                  | 1   |        | r_V_404       | mul | dsp48  | 3       |
+|    mul_23s_24s_47_3_1_U342                       | -   |        | p_Val2_166    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U312                  | 1   |        | r_V_405       | mul | dsp48  | 3       |
+|    p_Val2_169_fu_2060_p2                         | -   |        | p_Val2_169    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U313                  | 1   |        | r_V_406       | mul | dsp48  | 3       |
+|    p_Val2_172_fu_2184_p2                         | -   |        | p_Val2_172    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U314                  | 1   |        | r_V_407       | mul | dsp48  | 3       |
+|    p_Val2_175_fu_2438_p2                         | -   |        | p_Val2_175    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U315                  | 1   |        | r_V_408       | mul | dsp48  | 3       |
+|    p_Val2_178_fu_2562_p2                         | -   |        | p_Val2_178    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U316                  | 1   |        | r_V_409       | mul | dsp48  | 3       |
+|    p_Val2_181_fu_2816_p2                         | -   |        | p_Val2_181    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U317                  | 1   |        | r_V_410       | mul | dsp48  | 3       |
+|    p_Val2_184_fu_2940_p2                         | -   |        | p_Val2_184    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U318                  | 1   |        | r_V_411       | mul | dsp48  | 3       |
+|    p_Val2_187_fu_3194_p2                         | -   |        | p_Val2_187    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U319                  | 1   |        | r_V_412       | mul | dsp48  | 3       |
+|    p_Val2_190_fu_3318_p2                         | -   |        | p_Val2_190    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U320                  | 1   |        | r_V_413       | mul | dsp48  | 3       |
+|    p_Val2_193_fu_3572_p2                         | -   |        | p_Val2_193    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U321                  | 1   |        | r_V_414       | mul | dsp48  | 3       |
+|    p_Val2_196_fu_3696_p2                         | -   |        | p_Val2_196    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U322                  | 1   |        | r_V_415       | mul | dsp48  | 3       |
+|    p_Val2_199_fu_3950_p2                         | -   |        | p_Val2_199    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U323                  | 1   |        | r_V_416       | mul | dsp48  | 3       |
+|    p_Val2_202_fu_4074_p2                         | -   |        | p_Val2_202    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U324                  | 1   |        | r_V_417       | mul | dsp48  | 3       |
+|    p_Val2_205_fu_4328_p2                         | -   |        | p_Val2_205    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U325                  | 1   |        | r_V_418       | mul | dsp48  | 3       |
+|    p_Val2_208_fu_4452_p2                         | -   |        | p_Val2_208    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U326                  | 1   |        | r_V_419       | mul | dsp48  | 3       |
+|    p_Val2_211_fu_4706_p2                         | -   |        | p_Val2_211    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U327                  | 1   |        | r_V_420       | mul | dsp48  | 3       |
+|    p_Val2_214_fu_4830_p2                         | -   |        | p_Val2_214    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U328                  | 1   |        | r_V_421       | mul | dsp48  | 3       |
+|    p_Val2_217_fu_5084_p2                         | -   |        | p_Val2_217    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U329                  | 1   |        | r_V_422       | mul | dsp48  | 3       |
+|    p_Val2_220_fu_5208_p2                         | -   |        | p_Val2_220    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U330                  | 1   |        | r_V_423       | mul | dsp48  | 3       |
+|    p_Val2_223_fu_5462_p2                         | -   |        | p_Val2_223    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U331                  | 1   |        | r_V_424       | mul | dsp48  | 3       |
+|    p_Val2_226_fu_5586_p2                         | -   |        | p_Val2_226    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U332                  | 1   |        | r_V_425       | mul | dsp48  | 3       |
+|    p_Val2_229_fu_5840_p2                         | -   |        | p_Val2_229    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U333                  | 1   |        | r_V_426       | mul | dsp48  | 3       |
+|    p_Val2_232_fu_5964_p2                         | -   |        | p_Val2_232    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U334                  | 1   |        | r_V_427       | mul | dsp48  | 3       |
+|    p_Val2_235_fu_6218_p2                         | -   |        | p_Val2_235    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U335                  | 1   |        | r_V_428       | mul | dsp48  | 3       |
+|    p_Val2_238_fu_6342_p2                         | -   |        | p_Val2_238    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U336                  | 1   |        | r_V_429       | mul | dsp48  | 3       |
+|    p_Val2_241_fu_6566_p2                         | -   |        | p_Val2_241    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U337                  | 1   |        | r_V_430       | mul | dsp48  | 3       |
+|    p_Val2_244_fu_6690_p2                         | -   |        | p_Val2_244    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U338                  | 1   |        | r_V_431       | mul | dsp48  | 3       |
+|    p_Val2_247_fu_6914_p2                         | -   |        | p_Val2_247    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U339                  | 1   |        | r_V_432       | mul | dsp48  | 3       |
+|    p_Val2_250_fu_7038_p2                         | -   |        | p_Val2_250    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U340                  | 1   |        | r_V_433       | mul | dsp48  | 3       |
+|    p_Val2_253_fu_7262_p2                         | -   |        | p_Val2_253    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U341                  | 1   |        | r_V_434       | mul | dsp48  | 3       |
+|    p_Val2_256_fu_7386_p2                         | -   |        | p_Val2_256    | add | fabric | 0       |
+|   + gru_cell_step_Pipeline_VITIS_LOOP_48_1       | 14  |        |               |     |        |         |
+|     add_ln48_fu_1838_p2                          | -   |        | add_ln48      | add | fabric | 0       |
+|     mul_23s_24s_47_3_1_U4                        | 1   | yes    | r_V_70        | mul | dsp    | 2       |
+|     ret_V_127_fu_2307_p2                         | -   |        | ret_V_127     | add | fabric | 0       |
+|     ret_V_128_fu_2315_p2                         | -   |        | ret_V_128     | add | fabric | 0       |
+|     ret_V_131_fu_2567_p2                         | -   |        | ret_V_131     | add | fabric | 0       |
+|     ret_V_132_fu_2576_p2                         | -   |        | ret_V_132     | add | fabric | 0       |
+|     ret_V_135_fu_2653_p2                         | -   |        | ret_V_135     | add | fabric | 0       |
+|     ret_V_136_fu_2662_p2                         | -   |        | ret_V_136     | add | fabric | 0       |
+|     ret_V_139_fu_3011_p2                         | -   |        | ret_V_139     | add | fabric | 0       |
+|     ret_V_140_fu_3020_p2                         | -   |        | ret_V_140     | add | fabric | 0       |
+|     ret_V_144_fu_3102_p2                         | -   |        | ret_V_144     | add | fabric | 0       |
+|     mul_21s_23s_44_5_1_U31                       | 1   |        | r_V_98        | mul | auto   | 4       |
+|     ret_V_148_fu_3248_p2                         | -   |        | ret_V_148     | add | fabric | 0       |
+|     mul_21s_23s_44_5_1_U37                       | 1   |        | r_V_104       | mul | auto   | 4       |
+|     ret_V_149_fu_3257_p2                         | -   |        | ret_V_149     | add | fabric | 0       |
+|     ret_V_152_fu_3510_p2                         | -   |        | ret_V_152     | add | fabric | 0       |
+|     mul_21s_23s_44_5_1_U47                       | 1   |        | r_V_114       | mul | auto   | 4       |
+|     ret_V_157_fu_3590_p2                         | -   |        | ret_V_157     | add | fabric | 0       |
+|     mul_21s_23s_44_5_1_U48                       | 1   |        | r_V_116       | mul | auto   | 4       |
+|     ret_V_159_fu_3606_p2                         | -   |        | ret_V_159     | add | fabric | 0       |
+|     mul_21s_23s_44_5_1_U52                       | 1   |        | r_V_119       | mul | auto   | 4       |
+|     ret_V_163_fu_3777_p2                         | -   |        | ret_V_163     | add | fabric | 0       |
+|     mul_21s_23s_44_5_1_U58                       | 1   |        | r_V_125       | mul | auto   | 4       |
+|     mul_21s_23s_44_5_1_U59                       | 1   |        | r_V_126       | mul | auto   | 4       |
+|     mul_21s_23s_44_5_1_U61                       | 1   |        | r_V_128       | mul | auto   | 4       |
+|     ret_V_166_fu_3854_p2                         | -   |        | ret_V_166     | add | fabric | 0       |
+|     mul_21s_23s_44_5_1_U63                       | 1   |        | r_V_130       | mul | auto   | 4       |
+|     ret_V_167_fu_3863_p2                         | -   |        | ret_V_167     | add | fabric | 0       |
+|     mul_22s_23s_45_5_1_U67                       | 1   |        | r_V_134       | mul | auto   | 4       |
+|     mul_22s_23s_45_5_1_U68                       | 1   |        | r_V_135       | mul | auto   | 4       |
+|     ret_V_126_fu_3933_p2                         | -   |        | ret_V_126     | add | fabric | 0       |
+|     sum_z_V_1_fu_3960_p2                         | -   |        | sum_z_V_1     | add | fabric | 0       |
+|     sum_r_V_1_fu_3986_p2                         | -   |        | sum_r_V_1     | add | fabric | 0       |
+|     mul_mul_16s_12ns_28_4_1_U69                  | 1   |        | mul_ln1347    | mul | dsp48  | 3       |
+|     mul_mul_16s_12ns_28_4_1_U70                  | 1   |        | mul_ln1347_1  | mul | dsp48  | 3       |
+|   + gru_cell_step_Pipeline_VITIS_LOOP_94_5       | 2   |        |               |     |        |         |
+|     add_ln94_fu_1207_p2                          | -   |        | add_ln94      | add | fabric | 0       |
+|     ret_V_fu_1519_p2                             | -   |        | ret_V         | add | fabric | 0       |
+|     ret_V_31_fu_1565_p2                          | -   |        | ret_V_31      | add | fabric | 0       |
+|     ret_V_32_fu_1591_p2                          | -   |        | ret_V_32      | add | fabric | 0       |
+|     ret_V_33_fu_1617_p2                          | -   |        | ret_V_33      | add | fabric | 0       |
+|     ret_V_34_fu_1643_p2                          | -   |        | ret_V_34      | add | fabric | 0       |
+|     ret_V_35_fu_1733_p2                          | -   |        | ret_V_35      | add | fabric | 0       |
+|     ret_V_36_fu_1759_p2                          | -   |        | ret_V_36      | add | fabric | 0       |
+|     ret_V_37_fu_1785_p2                          | -   |        | ret_V_37      | add | fabric | 0       |
+|     ret_V_38_fu_1811_p2                          | -   |        | ret_V_38      | add | fabric | 0       |
+|     ret_V_39_fu_1885_p2                          | -   |        | ret_V_39      | add | fabric | 0       |
+|     ret_V_40_fu_1943_p2                          | -   |        | ret_V_40      | add | fabric | 0       |
+|     ret_V_41_fu_1969_p2                          | -   |        | ret_V_41      | add | fabric | 0       |
+|     ret_V_42_fu_1995_p2                          | -   |        | ret_V_42      | add | fabric | 0       |
+|     ret_V_43_fu_2021_p2                          | -   |        | ret_V_43      | add | fabric | 0       |
+|     ret_V_44_fu_2111_p2                          | -   |        | ret_V_44      | add | fabric | 0       |
+|     ret_V_45_fu_2137_p2                          | -   |        | ret_V_45      | add | fabric | 0       |
+|     ret_V_46_fu_2163_p2                          | -   |        | ret_V_46      | add | fabric | 0       |
+|     ret_V_47_fu_2189_p2                          | -   |        | ret_V_47      | add | fabric | 0       |
+|     ret_V_48_fu_2247_p2                          | -   |        | ret_V_48      | add | fabric | 0       |
+|     ret_V_49_fu_2321_p2                          | -   |        | ret_V_49      | add | fabric | 0       |
+|     ret_V_50_fu_2347_p2                          | -   |        | ret_V_50      | add | fabric | 0       |
+|     ret_V_51_fu_2373_p2                          | -   |        | ret_V_51      | add | fabric | 0       |
+|     ret_V_52_fu_2399_p2                          | -   |        | ret_V_52      | add | fabric | 0       |
+|     ret_V_53_fu_2489_p2                          | -   |        | ret_V_53      | add | fabric | 0       |
+|     ret_V_54_fu_2515_p2                          | -   |        | ret_V_54      | add | fabric | 0       |
+|     ret_V_55_fu_2541_p2                          | -   |        | ret_V_55      | add | fabric | 0       |
+|     ret_V_56_fu_2567_p2                          | -   |        | ret_V_56      | add | fabric | 0       |
+|     ret_V_57_fu_2609_p2                          | -   |        | ret_V_57      | add | fabric | 0       |
+|     ret_V_58_fu_2635_p2                          | -   |        | ret_V_58      | add | fabric | 0       |
+|     ret_V_59_fu_2661_p2                          | -   |        | ret_V_59      | add | fabric | 0       |
+|     ret_V_60_fu_2687_p2                          | -   |        | ret_V_60      | add | fabric | 0       |
+|     ret_V_61_fu_2713_p2                          | -   |        | ret_V_61      | add | fabric | 0       |
+|     sum_h_V_2_fu_2772_p2                         | -   |        | sum_h_V_2     | add | fabric | 0       |
+|     add_ln97_fu_2866_p2                          | -   |        | add_ln97      | add | fabric | 0       |
+|     add_ln97_1_fu_2777_p2                        | -   |        | add_ln97_1    | add | fabric | 0       |
+|     hh_V_1_fu_2811_p2                            | -   |        | hh_V_1        | add | fabric | 0       |
+|     one_minus_z_V_fu_2972_p2                     | -   |        | one_minus_z_V | sub | fabric | 0       |
+|     mul_mul_15s_14ns_29_4_1_U232                 | 1   |        | r_V_68        | mul | dsp48  | 3       |
+|     mul_mul_15s_15ns_30_4_1_U233                 | 1   |        | r_V_69        | mul | dsp48  | 3       |
+|     ret_V_63_fu_3049_p2                          | -   |        | ret_V_63      | add | fabric | 0       |
+|     add_ln1347_1_fu_3012_p2                      | -   |        | add_ln1347_1  | add | fabric | 0       |
+|     add_ln823_fu_3026_p2                         | -   |        | add_ln823     | add | fabric | 0       |
+|     h_upd_V_4_fu_3065_p2                         | -   |        | h_upd_V_4     | add | fabric | 0       |
+|  + gru_cell_step_1                               | 50  |        |               |     |        |         |
+|    mul_mul_14ns_15s_29_4_1_U694                  | 1   |        | r_V_307       | mul | dsp48  | 3       |
+|    p_Val2_14_fu_1677_p2                          | -   |        | p_Val2_14     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U695                  | 1   |        | r_V_308       | mul | dsp48  | 3       |
+|    p_Val2_20_fu_1801_p2                          | -   |        | p_Val2_20     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U696                  | 1   |        | r_V_309       | mul | dsp48  | 3       |
+|    p_Val2_26_fu_2029_p2                          | -   |        | p_Val2_26     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U697                  | 1   |        | r_V_310       | mul | dsp48  | 3       |
+|    p_Val2_35_fu_2153_p2                          | -   |        | p_Val2_35     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U698                  | 1   |        | r_V_311       | mul | dsp48  | 3       |
+|    p_Val2_44_fu_2407_p2                          | -   |        | p_Val2_44     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U699                  | 1   |        | r_V_312       | mul | dsp48  | 3       |
+|    p_Val2_53_fu_2531_p2                          | -   |        | p_Val2_53     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U700                  | 1   |        | r_V_313       | mul | dsp48  | 3       |
+|    p_Val2_62_fu_2785_p2                          | -   |        | p_Val2_62     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U701                  | 1   |        | r_V_314       | mul | dsp48  | 3       |
+|    p_Val2_71_fu_2909_p2                          | -   |        | p_Val2_71     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U702                  | 1   |        | r_V_315       | mul | dsp48  | 3       |
+|    p_Val2_80_fu_3163_p2                          | -   |        | p_Val2_80     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U703                  | 1   |        | r_V_316       | mul | dsp48  | 3       |
+|    p_Val2_89_fu_3287_p2                          | -   |        | p_Val2_89     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U704                  | 1   |        | r_V_317       | mul | dsp48  | 3       |
+|    p_Val2_98_fu_3541_p2                          | -   |        | p_Val2_98     | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U705                  | 1   |        | r_V_318       | mul | dsp48  | 3       |
+|    p_Val2_101_fu_3665_p2                         | -   |        | p_Val2_101    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U706                  | 1   |        | r_V_319       | mul | dsp48  | 3       |
+|    p_Val2_104_fu_3919_p2                         | -   |        | p_Val2_104    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U707                  | 1   |        | r_V_320       | mul | dsp48  | 3       |
+|    p_Val2_107_fu_4043_p2                         | -   |        | p_Val2_107    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U708                  | 1   |        | r_V_321       | mul | dsp48  | 3       |
+|    p_Val2_110_fu_4297_p2                         | -   |        | p_Val2_110    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U709                  | 1   |        | r_V_322       | mul | dsp48  | 3       |
+|    p_Val2_113_fu_4421_p2                         | -   |        | p_Val2_113    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U710                  | 1   |        | r_V_323       | mul | dsp48  | 3       |
+|    p_Val2_116_fu_4675_p2                         | -   |        | p_Val2_116    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U711                  | 1   |        | r_V_324       | mul | dsp48  | 3       |
+|    p_Val2_119_fu_4799_p2                         | -   |        | p_Val2_119    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U712                  | 1   |        | r_V_325       | mul | dsp48  | 3       |
+|    p_Val2_122_fu_5053_p2                         | -   |        | p_Val2_122    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U713                  | 1   |        | r_V_326       | mul | dsp48  | 3       |
+|    p_Val2_125_fu_5177_p2                         | -   |        | p_Val2_125    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U714                  | 1   |        | r_V_327       | mul | dsp48  | 3       |
+|    p_Val2_128_fu_5431_p2                         | -   |        | p_Val2_128    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U715                  | 1   |        | r_V_328       | mul | dsp48  | 3       |
+|    p_Val2_131_fu_5555_p2                         | -   |        | p_Val2_131    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U716                  | 1   |        | r_V_329       | mul | dsp48  | 3       |
+|    p_Val2_134_fu_5809_p2                         | -   |        | p_Val2_134    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U717                  | 1   |        | r_V_330       | mul | dsp48  | 3       |
+|    p_Val2_137_fu_5933_p2                         | -   |        | p_Val2_137    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U718                  | 1   |        | r_V_331       | mul | dsp48  | 3       |
+|    p_Val2_140_fu_6187_p2                         | -   |        | p_Val2_140    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U719                  | 1   |        | r_V_332       | mul | dsp48  | 3       |
+|    p_Val2_143_fu_6311_p2                         | -   |        | p_Val2_143    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U720                  | 1   |        | r_V_333       | mul | dsp48  | 3       |
+|    p_Val2_146_fu_6535_p2                         | -   |        | p_Val2_146    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U721                  | 1   |        | r_V_334       | mul | dsp48  | 3       |
+|    p_Val2_149_fu_6659_p2                         | -   |        | p_Val2_149    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U722                  | 1   |        | r_V_335       | mul | dsp48  | 3       |
+|    p_Val2_152_fu_6883_p2                         | -   |        | p_Val2_152    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U723                  | 1   |        | r_V_336       | mul | dsp48  | 3       |
+|    p_Val2_155_fu_7007_p2                         | -   |        | p_Val2_155    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U724                  | 1   |        | r_V_337       | mul | dsp48  | 3       |
+|    p_Val2_158_fu_7231_p2                         | -   |        | p_Val2_158    | add | fabric | 0       |
+|    mul_mul_14ns_15s_29_4_1_U725                  | 1   |        | r_V_338       | mul | dsp48  | 3       |
+|    p_Val2_161_fu_7355_p2                         | -   |        | p_Val2_161    | add | fabric | 0       |
+|   + gru_cell_step_1_Pipeline_VITIS_LOOP_48_1     | 16  |        |               |     |        |         |
+|     add_ln48_fu_1692_p2                          | -   |        | add_ln48      | add | fabric | 0       |
+|     ret_V_278_fu_1980_p2                         | -   |        | ret_V_278     | add | fabric | 0       |
+|     ret_V_279_fu_1988_p2                         | -   |        | ret_V_279     | add | fabric | 0       |
+|     ret_V_282_fu_2292_p2                         | -   |        | ret_V_282     | add | fabric | 0       |
+|     ret_V_283_fu_2301_p2                         | -   |        | ret_V_283     | add | fabric | 0       |
+|     ret_V_286_fu_2374_p2                         | -   |        | ret_V_286     | add | fabric | 0       |
+|     ret_V_287_fu_2383_p2                         | -   |        | ret_V_287     | add | fabric | 0       |
+|     ret_V_290_fu_2692_p2                         | -   |        | ret_V_290     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U430                      | 1   |        | r_V_199       | mul | auto   | 4       |
+|     mul_23s_23s_46_5_1_U431                      | 1   |        | r_V_200       | mul | auto   | 4       |
+|     ret_V_295_fu_2768_p2                         | -   |        | ret_V_295     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U436                      | 1   |        | r_V_203       | mul | auto   | 4       |
+|     ret_V_297_fu_2784_p2                         | -   |        | ret_V_297     | add | fabric | 0       |
+|     ret_V_299_fu_2894_p2                         | -   |        | ret_V_299     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U435                      | 1   |        | r_V_208       | mul | auto   | 4       |
+|     mul_23s_23s_46_5_1_U440                      | 1   |        | r_V_209       | mul | auto   | 4       |
+|     ret_V_301_fu_2910_p2                         | -   |        | ret_V_301     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U443                      | 1   |        | r_V_212       | mul | auto   | 4       |
+|     ret_V_303_fu_3148_p2                         | -   |        | ret_V_303     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U446                      | 1   |        | r_V_215       | mul | auto   | 4       |
+|     ret_V_305_fu_3164_p2                         | -   |        | ret_V_305     | add | fabric | 0       |
+|     ret_V_307_fu_3230_p2                         | -   |        | ret_V_307     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U452                      | 1   |        | r_V_221       | mul | auto   | 4       |
+|     ret_V_309_fu_3246_p2                         | -   |        | ret_V_309     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U454                      | 1   |        | r_V_223       | mul | auto   | 4       |
+|     mul_23s_23s_46_5_1_U455                      | 1   |        | r_V_224       | mul | auto   | 4       |
+|     ret_V_311_fu_3384_p2                         | -   |        | ret_V_311     | add | fabric | 0       |
+|     ret_V_313_fu_3400_p2                         | -   |        | ret_V_313     | add | fabric | 0       |
+|     ret_V_315_fu_3470_p2                         | -   |        | ret_V_315     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U465                      | 1   |        | r_V_233       | mul | auto   | 4       |
+|     ret_V_317_fu_3486_p2                         | -   |        | ret_V_317     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U466                      | 1   |        | r_V_235       | mul | auto   | 4       |
+|     mul_23s_23s_46_5_1_U468                      | 1   |        | r_V_237       | mul | auto   | 4       |
+|     ret_V_276_fu_3541_p2                         | -   |        | ret_V_276     | add | fabric | 0       |
+|     mul_23s_23s_46_5_1_U469                      | 1   |        | r_V_238       | mul | auto   | 4       |
+|     sum_z_V_2_fu_3593_p2                         | -   |        | sum_z_V_2     | add | fabric | 0       |
+|     sum_r_V_2_fu_3567_p2                         | -   |        | sum_r_V_2     | add | fabric | 0       |
+|     mul_mul_16s_12ns_28_4_1_U471                 | 1   |        | mul_ln1347    | mul | dsp48  | 3       |
+|     mul_mul_16s_12ns_28_4_1_U470                 | 1   |        | mul_ln1347_1  | mul | dsp48  | 3       |
+|   + gru_cell_step_1_Pipeline_VITIS_LOOP_94_5     | 2   |        |               |     |        |         |
+|     add_ln94_fu_1133_p2                          | -   |        | add_ln94      | add | fabric | 0       |
+|     ret_V_fu_1358_p2                             | -   |        | ret_V         | add | fabric | 0       |
+|     ret_V_175_fu_1420_p2                         | -   |        | ret_V_175     | add | fabric | 0       |
+|     ret_V_176_fu_1446_p2                         | -   |        | ret_V_176     | add | fabric | 0       |
+|     ret_V_177_fu_1472_p2                         | -   |        | ret_V_177     | add | fabric | 0       |
+|     ret_V_178_fu_1498_p2                         | -   |        | ret_V_178     | add | fabric | 0       |
+|     ret_V_179_fu_1588_p2                         | -   |        | ret_V_179     | add | fabric | 0       |
+|     ret_V_180_fu_1614_p2                         | -   |        | ret_V_180     | add | fabric | 0       |
+|     ret_V_181_fu_1640_p2                         | -   |        | ret_V_181     | add | fabric | 0       |
+|     ret_V_182_fu_1666_p2                         | -   |        | ret_V_182     | add | fabric | 0       |
+|     ret_V_183_fu_1724_p2                         | -   |        | ret_V_183     | add | fabric | 0       |
+|     ret_V_184_fu_1798_p2                         | -   |        | ret_V_184     | add | fabric | 0       |
+|     ret_V_185_fu_1824_p2                         | -   |        | ret_V_185     | add | fabric | 0       |
+|     ret_V_186_fu_1850_p2                         | -   |        | ret_V_186     | add | fabric | 0       |
+|     ret_V_187_fu_1876_p2                         | -   |        | ret_V_187     | add | fabric | 0       |
+|     ret_V_188_fu_1966_p2                         | -   |        | ret_V_188     | add | fabric | 0       |
+|     ret_V_189_fu_1992_p2                         | -   |        | ret_V_189     | add | fabric | 0       |
+|     ret_V_190_fu_2018_p2                         | -   |        | ret_V_190     | add | fabric | 0       |
+|     ret_V_191_fu_2044_p2                         | -   |        | ret_V_191     | add | fabric | 0       |
+|     ret_V_192_fu_2086_p2                         | -   |        | ret_V_192     | add | fabric | 0       |
+|     ret_V_193_fu_2176_p2                         | -   |        | ret_V_193     | add | fabric | 0       |
+|     ret_V_194_fu_2202_p2                         | -   |        | ret_V_194     | add | fabric | 0       |
+|     ret_V_195_fu_2228_p2                         | -   |        | ret_V_195     | add | fabric | 0       |
+|     ret_V_196_fu_2254_p2                         | -   |        | ret_V_196     | add | fabric | 0       |
+|     ret_V_197_fu_2344_p2                         | -   |        | ret_V_197     | add | fabric | 0       |
+|     ret_V_198_fu_2370_p2                         | -   |        | ret_V_198     | add | fabric | 0       |
+|     ret_V_199_fu_2396_p2                         | -   |        | ret_V_199     | add | fabric | 0       |
+|     ret_V_200_fu_2422_p2                         | -   |        | ret_V_200     | add | fabric | 0       |
+|     ret_V_201_fu_2448_p2                         | -   |        | ret_V_201     | add | fabric | 0       |
+|     ret_V_202_fu_2474_p2                         | -   |        | ret_V_202     | add | fabric | 0       |
+|     ret_V_203_fu_2500_p2                         | -   |        | ret_V_203     | add | fabric | 0       |
+|     ret_V_204_fu_2526_p2                         | -   |        | ret_V_204     | add | fabric | 0       |
+|     sum_h_V_4_fu_2585_p2                         | -   |        | sum_h_V_4     | add | fabric | 0       |
+|     add_ln97_fu_2679_p2                          | -   |        | add_ln97      | add | fabric | 0       |
+|     add_ln97_1_fu_2590_p2                        | -   |        | add_ln97_1    | add | fabric | 0       |
+|     hh_V_2_fu_2624_p2                            | -   |        | hh_V_2        | add | fabric | 0       |
+|     one_minus_z_V_fu_2785_p2                     | -   |        | one_minus_z_V | sub | fabric | 0       |
+|     mul_mul_15s_14ns_29_4_1_U621                 | 1   |        | r_V_173       | mul | dsp48  | 3       |
+|     mul_mul_15s_15ns_30_4_1_U622                 | 1   |        | r_V_174       | mul | dsp48  | 3       |
+|     ret_V_206_fu_2862_p2                         | -   |        | ret_V_206     | add | fabric | 0       |
+|     add_ln1347_1_fu_2825_p2                      | -   |        | add_ln1347_1  | add | fabric | 0       |
+|     add_ln823_fu_2839_p2                         | -   |        | add_ln823     | add | fabric | 0       |
+|     h_upd_V_7_fu_2878_p2                         | -   |        | h_upd_V_7     | add | fabric | 0       |
+|  + student_infer_pixel_Pipeline_VITIS_LOOP_210_7 | 2   |        |               |     |        |         |
+|    add_ln210_fu_1040_p2                          | -   |        | add_ln210     | add | fabric | 0       |
+|    add_ln219_fu_2529_p2                          | -   |        | add_ln219     | add | fabric | 0       |
+|    ret_V_fu_1209_p2                              | -   |        | ret_V         | add | fabric | 0       |
+|    ret_V_1_fu_1270_p2                            | -   |        | ret_V_1       | add | fabric | 0       |
+|    ret_V_2_fu_1296_p2                            | -   |        | ret_V_2       | add | fabric | 0       |
+|    ret_V_3_fu_1322_p2                            | -   |        | ret_V_3       | add | fabric | 0       |
+|    ret_V_4_fu_1348_p2                            | -   |        | ret_V_4       | add | fabric | 0       |
+|    ret_V_5_fu_1438_p2                            | -   |        | ret_V_5       | add | fabric | 0       |
+|    mul_20ns_23s_43_5_1_U792                      | 1   |        | r_V_7         | mul | auto   | 4       |
+|    ret_V_6_fu_1464_p2                            | -   |        | ret_V_6       | add | fabric | 0       |
+|    ret_V_7_fu_1490_p2                            | -   |        | ret_V_7       | add | fabric | 0       |
+|    ret_V_8_fu_1516_p2                            | -   |        | ret_V_8       | add | fabric | 0       |
+|    ret_V_9_fu_1574_p2                            | -   |        | ret_V_9       | add | fabric | 0       |
+|    ret_V_10_fu_1648_p2                           | -   |        | ret_V_10      | add | fabric | 0       |
+|    ret_V_11_fu_1674_p2                           | -   |        | ret_V_11      | add | fabric | 0       |
+|    ret_V_12_fu_1700_p2                           | -   |        | ret_V_12      | add | fabric | 0       |
+|    ret_V_13_fu_1726_p2                           | -   |        | ret_V_13      | add | fabric | 0       |
+|    ret_V_14_fu_1816_p2                           | -   |        | ret_V_14      | add | fabric | 0       |
+|    ret_V_15_fu_1842_p2                           | -   |        | ret_V_15      | add | fabric | 0       |
+|    ret_V_16_fu_1868_p2                           | -   |        | ret_V_16      | add | fabric | 0       |
+|    ret_V_17_fu_1894_p2                           | -   |        | ret_V_17      | add | fabric | 0       |
+|    mul_20s_23s_43_5_1_U804                       | 1   |        | r_V_19        | mul | auto   | 4       |
+|    ret_V_18_fu_1936_p2                           | -   |        | ret_V_18      | add | fabric | 0       |
+|    ret_V_19_fu_2026_p2                           | -   |        | ret_V_19      | add | fabric | 0       |
+|    ret_V_20_fu_2052_p2                           | -   |        | ret_V_20      | add | fabric | 0       |
+|    ret_V_21_fu_2078_p2                           | -   |        | ret_V_21      | add | fabric | 0       |
+|    ret_V_22_fu_2104_p2                           | -   |        | ret_V_22      | add | fabric | 0       |
+|    ret_V_23_fu_2194_p2                           | -   |        | ret_V_23      | add | fabric | 0       |
+|    ret_V_24_fu_2220_p2                           | -   |        | ret_V_24      | add | fabric | 0       |
+|    ret_V_25_fu_2246_p2                           | -   |        | ret_V_25      | add | fabric | 0       |
+|    ret_V_26_fu_2272_p2                           | -   |        | ret_V_26      | add | fabric | 0       |
+|    ret_V_27_fu_2298_p2                           | -   |        | ret_V_27      | add | fabric | 0       |
+|    ret_V_28_fu_2324_p2                           | -   |        | ret_V_28      | add | fabric | 0       |
+|    ret_V_29_fu_2350_p2                           | -   |        | ret_V_29      | add | fabric | 0       |
+|    ret_V_30_fu_2376_p2                           | -   |        | ret_V_30      | add | fabric | 0       |
+|    sum_o_V_2_fu_2435_p2                          | -   |        | sum_o_V_2     | add | fabric | 0       |
+|    add_ln212_fu_2537_p2                          | -   |        | add_ln212     | add | fabric | 0       |
+|    add_ln212_1_fu_2440_p2                        | -   |        | add_ln212_1   | add | fabric | 0       |
+|    p_Val2_2_fu_2474_p2                           | -   |        | p_Val2_2      | add | fabric | 0       |
++--------------------------------------------------+-----+--------+---------------+-----+--------+---------+
+
+
+================================================================
+== Bind Storage Report
+================================================================
++--------------------------------------------------+------+------+--------+--------------------------------------+---------+------+---------+
+| Name                                             | BRAM | URAM | Pragma | Variable                             | Storage | Impl | Latency |
++--------------------------------------------------+------+------+--------+--------------------------------------+---------+------+---------+
+| + student_infer_pixel                            | 0    | 0    |        |                                      |         |      |         |
+|   h_enc_V_U                                      | -    | -    |        | h_enc_V                              | ram_t2p | auto | 1       |
+|   h_enc_V_1_U                                    | -    | -    |        | h_enc_V_1                            | ram_t2p | auto | 1       |
+|   mul_22s_23s_45_5_1_U898                        | -    | -    |        | h_enc_V_2                            | ram_t2p | auto | 1       |
+|   mul_22s_23s_45_5_1_U888                        | -    | -    |        | h_enc_V_3                            | ram_t2p | auto | 1       |
+|   h_dec_V_U                                      | -    | -    |        | h_dec_V                              | ram_t2p | auto | 1       |
+|   mul_22s_23s_45_5_1_U892                        | -    | -    |        | h_dec_V_1                            | ram_t2p | auto | 1       |
+|   mul_22s_23s_45_5_1_U898                        | -    | -    |        | h_dec_V_2                            | ram_t2p | auto | 1       |
+|   h_dec_V_3_U                                    | -    | -    |        | h_dec_V_3                            | ram_t2p | auto | 1       |
+|   mul_22s_23s_45_5_1_U904                        | -    | -    |        | h_next_V                             | ram_s2p | auto | 1       |
+|   h_next_V_1_U                                   | -    | -    |        | h_next_V_1                           | ram_s2p | auto | 1       |
+|  + gru_cell_step                                 | 0    | 0    |        |                                      |         |      |         |
+|    z_V_U                                         | -    | -    |        | z_V                                  | ram_1p  | auto | 1       |
+|    r_V_U                                         | -    | -    |        | r_V                                  | ram_s2p | auto | 1       |
+|   + gru_cell_step_Pipeline_VITIS_LOOP_48_1       | 0    | 0    |        |                                      |         |      |         |
+|     p_ZL26sencgru_recurrent_kernel_z_0_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_0_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_0_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_0_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_1_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_1_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_1_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_1_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_2_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_2_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_2_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_2_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_3_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_3_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_3_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_3_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_4_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_4_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_4_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_4_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_5_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_5_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_5_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_5_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_6_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_6_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_6_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_6_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_7_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_7_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_7_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_7_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_0_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_0_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_0_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_0_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_1_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_1_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_1_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_1_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_2_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_2_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_2_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_2_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_3_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_3_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_3_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_3_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_4_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_4_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_4_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_4_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_5_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_5_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_5_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_5_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_6_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_6_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_6_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_6_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_7_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_7_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_7_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_7_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_0_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_0_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_0_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_0_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_1_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_1_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_1_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_1_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_2_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_2_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_2_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_2_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_3_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_3_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_3_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_3_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_4_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_4_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_4_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_4_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_5_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_5_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_5_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_5_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_6_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_6_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_6_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_6_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_7_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_7_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_7_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_7_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_0_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_0_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_0_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_0_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_1_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_1_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_1_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_1_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_2_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_2_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_2_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_2_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_3_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_3_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_3_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_3_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_4_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_4_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_4_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_4_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_5_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_5_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_5_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_5_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_6_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_6_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_6_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_6_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_z_7_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_z_7_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_r_7_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_r_7_3 | rom_1p  | auto | 1       |
+|     sencgru_bias_z_U                             | -    | -    |        | sencgru_bias_z                       | rom_1p  | auto | 1       |
+|     sencgru_bias_r_U                             | -    | -    |        | sencgru_bias_r                       | rom_1p  | auto | 1       |
+|   + gru_cell_step_Pipeline_VITIS_LOOP_94_5       | 0    | 0    |        |                                      |         |      |         |
+|     p_ZL26sencgru_recurrent_kernel_h_0_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_0_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_1_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_1_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_2_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_2_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_3_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_3_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_4_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_4_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_5_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_5_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_6_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_6_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_7_0_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_7_0 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_0_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_0_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_1_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_1_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_2_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_2_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_3_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_3_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_4_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_4_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_5_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_5_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_6_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_6_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_7_1_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_7_1 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_0_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_0_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_1_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_1_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_2_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_2_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_3_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_3_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_4_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_4_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_5_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_5_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_6_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_6_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_7_2_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_7_2 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_0_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_0_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_1_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_1_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_2_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_2_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_3_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_3_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_4_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_4_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_5_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_5_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_6_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_6_3 | rom_1p  | auto | 1       |
+|     p_ZL26sencgru_recurrent_kernel_h_7_3_U       | -    | -    |        | p_ZL26sencgru_recurrent_kernel_h_7_3 | rom_1p  | auto | 1       |
+|     sencgru_bias_h_U                             | -    | -    |        | sencgru_bias_h                       | rom_1p  | auto | 1       |
+|  + gru_cell_step_1                               | 0    | 0    |        |                                      |         |      |         |
+|    z_V_U                                         | -    | -    |        | z_V                                  | ram_1p  | auto | 1       |
+|    r_V_U                                         | -    | -    |        | r_V                                  | ram_s2p | auto | 1       |
+|   + gru_cell_step_1_Pipeline_VITIS_LOOP_48_1     | 0    | 0    |        |                                      |         |      |         |
+|     p_ZL26sdecgru_recurrent_kernel_z_0_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_0_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_0_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_0_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_1_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_1_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_1_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_1_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_2_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_2_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_2_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_2_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_3_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_3_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_3_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_3_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_4_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_4_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_4_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_4_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_5_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_5_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_5_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_5_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_6_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_6_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_6_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_6_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_7_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_7_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_7_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_7_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_0_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_0_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_0_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_0_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_1_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_1_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_1_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_1_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_2_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_2_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_2_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_2_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_3_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_3_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_3_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_3_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_4_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_4_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_4_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_4_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_5_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_5_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_5_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_5_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_6_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_6_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_6_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_6_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_7_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_7_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_7_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_7_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_0_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_0_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_0_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_0_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_1_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_1_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_1_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_1_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_2_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_2_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_2_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_2_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_3_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_3_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_3_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_3_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_4_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_4_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_4_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_4_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_5_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_5_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_5_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_5_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_6_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_6_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_6_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_6_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_7_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_7_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_7_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_7_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_0_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_0_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_0_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_0_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_1_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_1_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_1_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_1_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_2_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_2_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_2_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_2_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_3_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_3_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_3_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_3_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_4_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_4_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_4_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_4_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_5_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_5_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_5_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_5_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_6_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_6_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_6_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_6_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_z_7_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_z_7_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_r_7_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_r_7_3 | rom_1p  | auto | 1       |
+|     sdecgru_bias_z_U                             | -    | -    |        | sdecgru_bias_z                       | rom_1p  | auto | 1       |
+|     sdecgru_bias_r_U                             | -    | -    |        | sdecgru_bias_r                       | rom_1p  | auto | 1       |
+|   + gru_cell_step_1_Pipeline_VITIS_LOOP_94_5     | 0    | 0    |        |                                      |         |      |         |
+|     p_ZL26sdecgru_recurrent_kernel_h_0_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_0_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_1_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_1_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_2_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_2_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_3_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_3_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_4_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_4_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_5_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_5_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_6_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_6_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_7_0_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_7_0 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_0_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_0_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_1_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_1_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_2_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_2_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_3_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_3_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_4_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_4_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_5_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_5_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_6_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_6_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_7_1_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_7_1 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_0_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_0_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_1_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_1_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_2_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_2_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_3_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_3_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_4_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_4_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_5_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_5_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_6_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_6_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_7_2_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_7_2 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_0_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_0_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_1_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_1_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_2_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_2_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_3_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_3_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_4_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_4_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_5_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_5_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_6_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_6_3 | rom_1p  | auto | 1       |
+|     p_ZL26sdecgru_recurrent_kernel_h_7_3_U       | -    | -    |        | p_ZL26sdecgru_recurrent_kernel_h_7_3 | rom_1p  | auto | 1       |
+|     sdecgru_bias_h_U                             | -    | -    |        | sdecgru_bias_h                       | rom_1p  | auto | 1       |
+|  + student_infer_pixel_Pipeline_VITIS_LOOP_210_7 | 0    | 0    |        |                                      |         |      |         |
+|    p_ZL17sdec_dense_kernel_0_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_0_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_1_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_1_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_2_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_2_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_3_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_3_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_4_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_4_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_5_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_5_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_6_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_6_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_7_0_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_7_0          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_0_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_0_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_1_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_1_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_2_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_2_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_3_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_3_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_4_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_4_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_5_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_5_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_6_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_6_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_7_1_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_7_1          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_0_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_0_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_1_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_1_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_2_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_2_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_3_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_3_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_4_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_4_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_5_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_5_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_6_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_6_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_7_2_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_7_2          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_0_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_0_3          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_1_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_1_3          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_2_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_2_3          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_3_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_3_3          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_4_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_4_3          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_5_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_5_3          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_6_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_6_3          | rom_1p  | auto | 1       |
+|    p_ZL17sdec_dense_kernel_7_3_U                 | -    | -    |        | p_ZL17sdec_dense_kernel_7_3          | rom_1p  | auto | 1       |
+|    sdec_dense_bias_U                             | -    | -    |        | sdec_dense_bias                      | rom_1p  | auto | 1       |
++--------------------------------------------------+------+------+--------+--------------------------------------+---------+------+---------+
+
+
+================================================================
+== Pragma Report
+================================================================
+* Valid Pragma Syntax
++-----------------+-----------------------------------------------------------+----------------------------------------------------------------------------+
+| Type            | Options                                                   | Location                                                                   |
++-----------------+-----------------------------------------------------------+----------------------------------------------------------------------------+
+| pipeline        | II=4                                                      | src/student_top.cpp:49 in gru_cell_step                                    |
+| bind_op         | variable=sum_z op=mul impl=dsp latency=2                  | src/student_top.cpp:57 in gru_cell_step, sum_z                             |
+| bind_op         | variable=sum_r op=mul impl=dsp latency=2                  | src/student_top.cpp:58 in gru_cell_step, sum_r                             |
+| unroll          |                                                           | src/student_top.cpp:90 in gru_cell_step                                    |
+| pipeline        | II=4                                                      | src/student_top.cpp:95 in gru_cell_step                                    |
+| bind_op         | variable=sum_h op=mul impl=dsp latency=2                  | src/student_top.cpp:101 in gru_cell_step, sum_h                            |
+| array_partition | variable=sencgru_kernel_z complete dim=2                  | src/student_top.cpp:149 in student_infer_pixel, sencgru_kernel_z           |
+| array_partition | variable=sencgru_kernel_r complete dim=2                  | src/student_top.cpp:150 in student_infer_pixel, sencgru_kernel_r           |
+| array_partition | variable=sencgru_kernel_h complete dim=2                  | src/student_top.cpp:151 in student_infer_pixel, sencgru_kernel_h           |
+| array_partition | variable=sencgru_recurrent_kernel_z cyclic factor=8 dim=1 | src/student_top.cpp:152 in student_infer_pixel, sencgru_recurrent_kernel_z |
+| array_partition | variable=sencgru_recurrent_kernel_r cyclic factor=8 dim=1 | src/student_top.cpp:153 in student_infer_pixel, sencgru_recurrent_kernel_r |
+| array_partition | variable=sencgru_recurrent_kernel_h cyclic factor=8 dim=1 | src/student_top.cpp:154 in student_infer_pixel, sencgru_recurrent_kernel_h |
+| array_partition | variable=sdecgru_recurrent_kernel_z cyclic factor=8 dim=1 | src/student_top.cpp:155 in student_infer_pixel, sdecgru_recurrent_kernel_z |
+| array_partition | variable=sdecgru_recurrent_kernel_r cyclic factor=8 dim=1 | src/student_top.cpp:156 in student_infer_pixel, sdecgru_recurrent_kernel_r |
+| array_partition | variable=sdecgru_recurrent_kernel_h cyclic factor=8 dim=1 | src/student_top.cpp:157 in student_infer_pixel, sdecgru_recurrent_kernel_h |
+| array_partition | variable=sdec_dense_kernel cyclic factor=8 dim=1          | src/student_top.cpp:158 in student_infer_pixel, sdec_dense_kernel          |
+| unroll          |                                                           | src/student_top.cpp:165 in student_infer_pixel                             |
+| unroll          |                                                           | src/student_top.cpp:179 in student_infer_pixel                             |
+| unroll          |                                                           | src/student_top.cpp:188 in student_infer_pixel                             |
+| unroll          |                                                           | src/student_top.cpp:203 in student_infer_pixel                             |
+| pipeline        | II=4                                                      | src/student_top.cpp:211 in student_infer_pixel                             |
++-----------------+-----------------------------------------------------------+----------------------------------------------------------------------------+
+
+* Inferred Pragmas
++---------------------------------+-----------------+-------------------------------------------+---------------------------------------+
+| Source Pragma                   | Inferred Pragma | Options                                   | Location                              |
++---------------------------------+-----------------+-------------------------------------------+---------------------------------------+
+| pipeline src/student_top.cpp:49 | array_partition | dim=1 type=cyclic factor=4 variable=h_enc | variable h_enc in student_infer_pixel |
+| pipeline src/student_top.cpp:49 | array_partition | dim=1 type=cyclic factor=4 variable=h_dec | variable h_dec in student_infer_pixel |
++---------------------------------+-----------------+-------------------------------------------+---------------------------------------+
+
+
