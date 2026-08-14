@@ -15,6 +15,17 @@
 // kernel_z/r/h    : [INPUT_DIM][GRU_UNITS]  int8 codes
 // recurrent_z/r/h : [GRU_UNITS][GRU_UNITS]  int8 codes
 // bias_z/r/h      : [GRU_UNITS]             int8 codes
+//
+// TIMING FIX (target clock period 4.5 ns): the recurrent accumulation loops
+// below are pipelined at II=4 instead of II=1. Each recurrent_* array is
+// partitioned "cyclic factor=8" at the call site (see student_infer_pixel),
+// so only 8 of the 32 recurrent weights are readable per cycle. That forces
+// the k-loop's 32-way multiply-accumulate tree to be scheduled across 4
+// cycles (32/8) instead of being flattened into a single combinational
+// stage, which is what produced the 6.75 ns 'mul' delay on the 'r' gate.
+// BIND_OP pins the accumulation multiplies onto DSP48 slices (2-cycle
+// latency) instead of LUT-fabric multipliers, which is required to close
+// timing at 4.5 ns.
 // ============================================================================
 static void gru_cell_step(
     input_t x,
@@ -35,7 +46,7 @@ static void gru_cell_step(
 
     // ---- update gate z and reset gate r ----
     for (int u = 0; u < GRU_UNITS; u++) {
-        #pragma HLS PIPELINE II=1
+        #pragma HLS PIPELINE II=4
 
         acc_t sum_z = 0;
         acc_t sum_r = 0;
@@ -43,6 +54,8 @@ static void gru_cell_step(
         for (int i = 0; i < INPUT_DIM; i++) {
             weight_t wz = int8_to_weight(kernel_z[i][u]);
             weight_t wr = int8_to_weight(kernel_r[i][u]);
+            #pragma HLS BIND_OP variable=sum_z op=mul impl=dsp latency=2
+            #pragma HLS BIND_OP variable=sum_r op=mul impl=dsp latency=2
             sum_z += acc_t(x) * acc_t(wz);
             sum_r += acc_t(x) * acc_t(wr);
         }
@@ -79,12 +92,13 @@ static void gru_cell_step(
     }
 
     for (int u = 0; u < GRU_UNITS; u++) {
-        #pragma HLS PIPELINE II=1
+        #pragma HLS PIPELINE II=4
 
         acc_t sum_h = 0;
 
         for (int i = 0; i < INPUT_DIM; i++) {
             weight_t wh = int8_to_weight(kernel_h[i][u]);
+            #pragma HLS BIND_OP variable=sum_h op=mul impl=dsp latency=2
             sum_h += acc_t(x) * acc_t(wh);
         }
         for (int k = 0; k < GRU_UNITS; k++) {
@@ -110,6 +124,23 @@ static void gru_cell_step(
 
 // ============================================================================
 // Top-level single-pixel inference.
+//
+// TIMING/MEMORY FIX (target clock period 4.5 ns):
+//   1. The outer per-timestep loops (encoder and decoder) no longer carry
+//      "PIPELINE II=1 rewind". Nesting an II=1 pipeline around gru_cell_step
+//      (whose own loops now run at II=4) is an unsatisfiable constraint that
+//      forced the scheduler into the exhaustive search that produced the
+//      50 GB Out-of-Memory crash. The outer loops now run as plain sequential
+//      loops; each call into gru_cell_step is still internally pipelined.
+//   2. ARRAY_PARTITION on every recurrent_kernel_* array is changed from
+//      "complete" to "cyclic factor=8" -- this caps parallel weight reads to
+//      8 per cycle, which is what allows the II=4 scheduling above to be
+//      physically realizable instead of silently falling back to a fully
+//      unrolled combinational tree.
+//   3. sdec_dense_kernel now has an explicit "cyclic factor=8" partition and
+//      the QDense output loop below runs at II=4 for the same reason -- it
+//      has the identical 32-wide MAC-tree-in-one-cycle problem the GRU gates
+//      had.
 // ============================================================================
 void student_infer_pixel(
     input_t  tpsf_in[SEQ_LEN],
@@ -118,12 +149,13 @@ void student_infer_pixel(
     #pragma HLS ARRAY_PARTITION variable=sencgru_kernel_z complete dim=2
     #pragma HLS ARRAY_PARTITION variable=sencgru_kernel_r complete dim=2
     #pragma HLS ARRAY_PARTITION variable=sencgru_kernel_h complete dim=2
-    #pragma HLS ARRAY_PARTITION variable=sencgru_recurrent_kernel_z complete dim=1
-    #pragma HLS ARRAY_PARTITION variable=sencgru_recurrent_kernel_r complete dim=1
-    #pragma HLS ARRAY_PARTITION variable=sencgru_recurrent_kernel_h complete dim=1
-    #pragma HLS ARRAY_PARTITION variable=sdecgru_recurrent_kernel_z complete dim=1
-    #pragma HLS ARRAY_PARTITION variable=sdecgru_recurrent_kernel_r complete dim=1
-    #pragma HLS ARRAY_PARTITION variable=sdecgru_recurrent_kernel_h complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=sencgru_recurrent_kernel_z cyclic factor=8 dim=1
+    #pragma HLS ARRAY_PARTITION variable=sencgru_recurrent_kernel_r cyclic factor=8 dim=1
+    #pragma HLS ARRAY_PARTITION variable=sencgru_recurrent_kernel_h cyclic factor=8 dim=1
+    #pragma HLS ARRAY_PARTITION variable=sdecgru_recurrent_kernel_z cyclic factor=8 dim=1
+    #pragma HLS ARRAY_PARTITION variable=sdecgru_recurrent_kernel_r cyclic factor=8 dim=1
+    #pragma HLS ARRAY_PARTITION variable=sdecgru_recurrent_kernel_h cyclic factor=8 dim=1
+    #pragma HLS ARRAY_PARTITION variable=sdec_dense_kernel cyclic factor=8 dim=1
 
     state_t h_enc[GRU_UNITS];
     state_t h_dec[GRU_UNITS];
@@ -135,7 +167,6 @@ void student_infer_pixel(
     }
 
     for (int t = 0; t < SEQ_LEN; t++) {
-        #pragma HLS PIPELINE II=1 rewind
         state_t h_next[GRU_UNITS];
         gru_cell_step(
             tpsf_in[t], h_enc,
@@ -159,8 +190,6 @@ void student_infer_pixel(
     }
 
     for (int t = 0; t < SEQ_LEN; t++) {
-        #pragma HLS PIPELINE II=1 rewind
-
         input_t zero_input = input_t(0.0);
         state_t h_next[GRU_UNITS];
         gru_cell_step(
@@ -179,7 +208,7 @@ void student_infer_pixel(
         //      quantizer attached (activation="linear", qd() only quantizes
         //      the kernel/bias at training time). ----
         for (int o = 0; o < N_OUT; o++) {
-            #pragma HLS PIPELINE II=1
+            #pragma HLS PIPELINE II=4
             dense_acc_t sum_o = 0;
             for (int u = 0; u < GRU_UNITS; u++) {
                 weight_t wo = int8_to_weight(sdec_dense_kernel[u][o]);

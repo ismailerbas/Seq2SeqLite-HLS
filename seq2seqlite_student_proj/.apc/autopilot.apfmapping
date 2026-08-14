@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<autopilotfilemapping:AutoPilotFileMapping xmlns:autopilotfilemapping="www.autoesl.com/autopilotfilemapping">
+  <source>
+    <originFiles name="student_weights_int8.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_weights_int8.h"/>
+    <originFiles name="student_weight_convert.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_weight_convert.h"/>
+    <originFiles name="student_hls_types.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_hls_types.h"/>
+    <originFiles name="student_top.cpp" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top.cpp"/>
+  </source>
+  <testbench/>
+</autopilotfilemapping:AutoPilotFileMapping>
