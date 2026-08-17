@@ -26,6 +26,21 @@
 // BIND_OP pins the accumulation multiplies onto DSP48 slices (2-cycle
 // latency) instead of LUT-fabric multipliers, which is required to close
 // timing at 4.5 ns.
+//
+// CORRECTNESS FIX (hard_sigmoid overflow): sum_z/sum_r are the RAW, UNSCALED
+// pre-activation accumulator values in acc_t (ap_fixed<32,10,AP_TRN,AP_WRAP>,
+// 10 integer bits -- sized to hold a 32-term MAC sum without overflow).
+// The previous code did "gate_t(sum_z) * gate_t(0.2) + gate_t(0.5)", which
+// downcasts the RAW unscaled sum_z into gate_t (ap_fixed<16,2,AP_TRN,
+// AP_WRAP>, only 2 integer bits, range [-2,2)) BEFORE applying the *0.2
+// scaling that was supposed to bring it into range. Since gate_t is
+// AP_WRAP (by design, for timing), any sum_z outside [-2,2) silently wraps
+// around modulo 4 instead of saturating, corrupting the gate value before
+// the explicit clip below ever runs on it. Fixed by doing the *0.2 + 0.5
+// scaling and the [0,1] clip entirely in acc_t (which has the integer-bit
+// headroom to represent the raw sum exactly), and only downcasting to
+// gate_t after the value is already clipped into [0,1] -- a range gate_t
+// represents exactly, so the final narrowing cast is lossless.
 // ============================================================================
 static void gru_cell_step(
     input_t x,
@@ -71,16 +86,19 @@ static void gru_cell_step(
         sum_z += acc_t(bz);
         sum_r += acc_t(br);
 
-        // hard_sigmoid(v) = clip(0.2*v + 0.5, 0, 1)  -- exact Keras backend formula
-        gate_t pre_z = gate_t(sum_z) * gate_t(0.2) + gate_t(0.5);
-        if (pre_z < gate_t(0.0)) pre_z = gate_t(0.0);
-        else if (pre_z > gate_t(1.0)) pre_z = gate_t(1.0);
-        z[u] = pre_z;
+        // hard_sigmoid(v) = clip(0.2*v + 0.5, 0, 1) -- exact Keras backend
+        // formula. Scaling and clipping performed entirely in acc_t (wide
+        // enough to hold the raw pre-activation without wrap), then cast
+        // down to gate_t only after the value is already in [0,1].
+        acc_t pre_z_acc = sum_z * acc_t(0.2) + acc_t(0.5);
+        if (pre_z_acc < acc_t(0.0)) pre_z_acc = acc_t(0.0);
+        else if (pre_z_acc > acc_t(1.0)) pre_z_acc = acc_t(1.0);
+        z[u] = gate_t(pre_z_acc);
 
-        gate_t pre_r = gate_t(sum_r) * gate_t(0.2) + gate_t(0.5);
-        if (pre_r < gate_t(0.0)) pre_r = gate_t(0.0);
-        else if (pre_r > gate_t(1.0)) pre_r = gate_t(1.0);
-        r[u] = pre_r;
+        acc_t pre_r_acc = sum_r * acc_t(0.2) + acc_t(0.5);
+        if (pre_r_acc < acc_t(0.0)) pre_r_acc = acc_t(0.0);
+        else if (pre_r_acc > acc_t(1.0)) pre_r_acc = acc_t(1.0);
+        r[u] = gate_t(pre_r_acc);
     }
 
     // ---- candidate hidden state hh (reset applied BEFORE recurrent matmul,
@@ -111,7 +129,9 @@ static void gru_cell_step(
 
         // quantized_tanh default (confirmed empirically): clip(v,-1,1) then
         // quantize to 8-bit step 1/128. state_t is ap_fixed<8,1,AP_RND,AP_SAT>
-        // so this single assignment performs exactly that clip + round.
+        // so this single assignment performs exactly that clip + round --
+        // this cast is safe (unlike the gate_t bug above) because state_t
+        // is AP_SAT, not AP_WRAP, so it saturates instead of wrapping.
         state_t hh = state_t(sum_h);
 
         // h_new = z*h_prev + (1-z)*hh

@@ -62,6 +62,56 @@
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_weights_int8.h</location>
 		</link>
 		<link>
+			<name>testbench/expected_out_1.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_1.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_2.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_2.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_3.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_3.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_4.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_4.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_5.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_5.csv</location>
+		</link>
+		<link>
+			<name>testbench/raw_pixel_1.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/raw_pixel_1.csv</location>
+		</link>
+		<link>
+			<name>testbench/raw_pixel_2.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/raw_pixel_2.csv</location>
+		</link>
+		<link>
+			<name>testbench/raw_pixel_3.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/raw_pixel_3.csv</location>
+		</link>
+		<link>
+			<name>testbench/raw_pixel_4.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/raw_pixel_4.csv</location>
+		</link>
+		<link>
+			<name>testbench/raw_pixel_5.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/raw_pixel_5.csv</location>
+		</link>
+		<link>
 			<name>testbench/student_tb.cpp</name>
 			<type>1</type>
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_tb.cpp</location>

@@ -8,5 +8,15 @@
   </source>
   <testbench>
     <originFiles name="student_tb.cpp" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_tb.cpp"/>
+    <originFiles name="expected_out_1.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_1.csv"/>
+    <originFiles name="expected_out_2.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_2.csv"/>
+    <originFiles name="expected_out_3.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_3.csv"/>
+    <originFiles name="expected_out_4.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_4.csv"/>
+    <originFiles name="expected_out_5.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_5.csv"/>
+    <originFiles name="raw_pixel_1.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_1.csv"/>
+    <originFiles name="raw_pixel_2.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_2.csv"/>
+    <originFiles name="raw_pixel_3.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_3.csv"/>
+    <originFiles name="raw_pixel_4.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_4.csv"/>
+    <originFiles name="raw_pixel_5.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_5.csv"/>
   </testbench>
 </autopilotfilemapping:AutoPilotFileMapping>
