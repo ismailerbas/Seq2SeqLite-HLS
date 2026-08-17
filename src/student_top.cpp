@@ -247,3 +247,48 @@ void student_infer_pixel(
         }
     }
 }
+// ============================================================================
+// Post-processing: per-pixel lifetime extraction, replicating
+// extract_lifetimes() from eval_experimental.py exactly. Uses double
+// arithmetic for the trapezoidal integration and divisions -- this is
+// correct and sufficient for C-simulation / verification against real
+// ground truth. If this needs to run as synthesized RTL on the FPGA
+// (not just in csim), the trapezoidal sum and divisions below need to be
+// re-expressed in fixed-point (ap_fixed) with an HLS-synthesizable divide
+// core before csynth_design will accept it -- flag that as a separate
+// task once this passes csim as written.
+// ============================================================================
+void extract_lifetimes_pixel(
+    output_t sfd_out[SEQ_LEN][N_OUT],
+    double &tau1,
+    double &tau2,
+    double &fret
+) {
+    double h = GATE_WIDTH_NS;
+
+    double ch1_first = (double)sfd_out[0][1];
+    double ch1_last  = (double)sfd_out[SEQ_LEN - 1][1];
+    double ch2_first = (double)sfd_out[0][2];
+    double ch2_last  = (double)sfd_out[SEQ_LEN - 1][2];
+
+    double sum1 = 0.0;
+    double sum2 = 0.0;
+    for (int t = 1; t < SEQ_LEN - 1; t++) {
+        sum1 += (double)sfd_out[t][1];
+        sum2 += (double)sfd_out[t][2];
+    }
+
+    // Trapezoidal rule for uniformly spaced samples, matching numpy.trapz
+    // exactly: h * (0.5*y[0] + y[1] + ... + y[N-2] + 0.5*y[N-1]).
+    double int1 = h * (0.5 * ch1_first + sum1 + 0.5 * ch1_last);
+    double int2 = h * (0.5 * ch2_first + sum2 + 0.5 * ch2_last);
+
+    double amp1 = (double)sfd_out[0][1];
+    double amp2 = (double)sfd_out[0][2];
+
+    tau1 = (amp1 > 1e-6) ? (int1 / amp1) : 0.0;
+    tau2 = (amp2 > 1e-6) ? (int2 / amp2) : 0.0;
+
+    double denom = amp1 + amp2;
+    fret = (denom > 1e-6) ? (amp1 / denom) : 0.5;
+}

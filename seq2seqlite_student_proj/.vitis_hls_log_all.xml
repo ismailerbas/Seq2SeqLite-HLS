@@ -7,6 +7,19 @@
       <mgLog/>
       <packageLog/>
       <csimLog>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T19:10:48.031-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T18:00:22.903-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T17:33:46.974-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T14:55:57.560-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T14:23:17.492-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T14:20:44.584-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T13:58:48.000-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T13:32:11.232-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T13:19:09.708-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T13:15:15.560-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T13:10:30.549-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T13:09:44.024-0400"/>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T12:44:52.037-0400"/>
         <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T11:48:33.052-0400"/>
       </csimLog>
     </logs>

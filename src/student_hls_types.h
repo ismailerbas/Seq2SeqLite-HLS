@@ -57,4 +57,11 @@ typedef ap_fixed<16, 6, AP_RND, AP_SAT>  output_t;
 #define SEQ_LEN     135
 #define N_OUT       3
 
+// Gate width per time bin in nanoseconds. Confirmed from both
+// train_student_vanilla_kd.py and eval_experimental.py --gate-width-ns
+// default (0.09). Used for trapezoidal lifetime integration in
+// extract_lifetimes_pixel (student_top.cpp), matching extract_lifetimes()
+// in eval_experimental.py exactly.
+#define GATE_WIDTH_NS 0.09
+
 #endif // STUDENT_HLS_TYPES_H
