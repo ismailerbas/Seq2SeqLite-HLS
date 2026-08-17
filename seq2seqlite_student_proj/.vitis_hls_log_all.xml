@@ -7,6 +7,7 @@
       <mgLog/>
       <packageLog/>
       <csimLog>
+        <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T19:23:11.956-0400"/>
         <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T19:20:03.791-0400"/>
         <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T19:10:48.031-0400"/>
         <logs message="ERROR: [SIM 211-100] 'csim_design' failed: nonzero return value." projectName="seq2seqlite_student_proj" solutionName="solution1" date="2026-08-17T18:00:22.903-0400"/>
