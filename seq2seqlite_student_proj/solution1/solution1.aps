@@ -69,7 +69,7 @@
         <library value="xilinx/kintex7/kintex7" name="DefaultPlatform"/>
     </libraryList>
     <clockList>
-        <clock default="false" name="default" period="4.5"/>
+        <clock name="default" default="false" period="4.5"/>
     </clockList>
 </solution>
 
