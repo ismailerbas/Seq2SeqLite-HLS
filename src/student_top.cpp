@@ -98,12 +98,12 @@ static void gru_cell_step(
         // instantiated QGRUCell: clip(0.5*x + 0.5, 0, 1), slope 0.5, not 0.2.
         // Scaling and clipping performed entirely in acc_t, then cast down
         // to gate_t only after the value is already in [0,1].
-        acc_t pre_z_acc = sum_z * acc_t(0.5) + acc_t(0.5);
+        acc_t pre_z_acc = sum_z * acc_t(0.2) + acc_t(0.5);
         if (pre_z_acc < acc_t(0.0)) pre_z_acc = acc_t(0.0);
         else if (pre_z_acc > acc_t(1.0)) pre_z_acc = acc_t(1.0);
         z[u] = gate_t(pre_z_acc);
 
-        acc_t pre_r_acc = sum_r * acc_t(0.5) + acc_t(0.5);
+        acc_t pre_r_acc = sum_r * acc_t(0.2) + acc_t(0.5);
         if (pre_r_acc < acc_t(0.0)) pre_r_acc = acc_t(0.0);
         else if (pre_r_acc > acc_t(1.0)) pre_r_acc = acc_t(1.0);
         r[u] = gate_t(pre_r_acc);
