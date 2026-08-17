@@ -3,13 +3,12 @@
 #include "student_weights_int8.h"
 
 // ============================================================================
-// One GRU cell step (reset_after=False, confirmed from qkeras/qrecurrent.py).
+// One GRU cell step (reset_after=False, confirmed from qkeras/qrecurrent.py
+// QGRUCell.call() source, verified line-by-line against the actual
+// implementation).
 //   z  = hard_sigmoid( x.Wz + h_prev.Uz + bz )
 //   r  = hard_sigmoid( x.Wr + h_prev.Ur + br )
-//   hh = clip( x.Wh + (r*h_prev).Uh + bh , -1, 1 )   [quantized_tanh default
-//                                                      == linear clip, NOT
-//                                                      real tanh, confirmed
-//                                                      empirically]
+//   hh = quantized_tanh( x.Wh + (r*h_prev).Uh + bh )
 //   h_new = z*h_prev + (1-z)*hh
 //
 // kernel_z/r/h    : [INPUT_DIM][GRU_UNITS]  int8 codes
@@ -30,17 +29,24 @@
 // CORRECTNESS FIX (hard_sigmoid overflow): sum_z/sum_r are the RAW, UNSCALED
 // pre-activation accumulator values in acc_t (ap_fixed<32,10,AP_TRN,AP_WRAP>,
 // 10 integer bits -- sized to hold a 32-term MAC sum without overflow).
-// The previous code did "gate_t(sum_z) * gate_t(0.2) + gate_t(0.5)", which
-// downcasts the RAW unscaled sum_z into gate_t (ap_fixed<16,2,AP_TRN,
-// AP_WRAP>, only 2 integer bits, range [-2,2)) BEFORE applying the *0.2
-// scaling that was supposed to bring it into range. Since gate_t is
-// AP_WRAP (by design, for timing), any sum_z outside [-2,2) silently wraps
-// around modulo 4 instead of saturating, corrupting the gate value before
-// the explicit clip below ever runs on it. Fixed by doing the *0.2 + 0.5
-// scaling and the [0,1] clip entirely in acc_t (which has the integer-bit
-// headroom to represent the raw sum exactly), and only downcasting to
-// gate_t after the value is already clipped into [0,1] -- a range gate_t
-// represents exactly, so the final narrowing cast is lossless.
+// The scaling (*0.2 + 0.5) and the [0,1] clip are performed entirely in
+// acc_t (which has the integer-bit headroom to represent the raw sum
+// exactly), and only downcast to gate_t after the value is already clipped
+// into [0,1] -- a range gate_t represents exactly, so the final narrowing
+// cast is lossless. Casting the raw unscaled sum directly into gate_t
+// (ap_fixed<16,2,AP_TRN,AP_WRAP>, only 2 integer bits) before scaling would
+// silently wrap instead of saturate.
+//
+// quantized_tanh VERIFIED (from qkeras.quantizers.quantized_tanh.__call__,
+// via inspect.getsource on the actual installed package): with
+// use_real_tanh=False (the default, never overridden by qa() in
+// extract_student_weights.py), p = 2*_sigmoid(x) - 1, where _sigmoid is
+// QKeras's own hard_sigmoid: clip(0.5*x + 0.5, 0, 1). Algebraically, for
+// any x in [-1,1], 2*clip(0.5x+0.5,0,1) - 1 = 2*(0.5x+0.5) - 1 = x exactly;
+// outside that range it saturates to -1 or 1. This reduces identically to
+// clip(x, -1, 1), which is exactly what casting into state_t (ap_fixed<8,1,
+// AP_RND,AP_SAT>) already performs via its own saturate-and-round behavior.
+// No separate sigmoid/exp computation is needed or correct here.
 // ============================================================================
 static void gru_cell_step(
     input_t x,
@@ -86,16 +92,18 @@ static void gru_cell_step(
         sum_z += acc_t(bz);
         sum_r += acc_t(br);
 
-        // hard_sigmoid(v) = clip(0.2*v + 0.5, 0, 1) -- exact Keras backend
-        // formula. Scaling and clipping performed entirely in acc_t (wide
-        // enough to hold the raw pre-activation without wrap), then cast
-        // down to gate_t only after the value is already in [0,1].
-        acc_t pre_z_acc = sum_z * acc_t(0.2) + acc_t(0.5);
+        // QGRUCell's 'hard_sigmoid' STRING resolves to QKeras's OWN internal
+        // hard_sigmoid, NOT the standard tf.keras.backend one -- confirmed
+        // via inspect.getsource(cell.recurrent_activation) on the real
+        // instantiated QGRUCell: clip(0.5*x + 0.5, 0, 1), slope 0.5, not 0.2.
+        // Scaling and clipping performed entirely in acc_t, then cast down
+        // to gate_t only after the value is already in [0,1].
+        acc_t pre_z_acc = sum_z * acc_t(0.5) + acc_t(0.5);
         if (pre_z_acc < acc_t(0.0)) pre_z_acc = acc_t(0.0);
         else if (pre_z_acc > acc_t(1.0)) pre_z_acc = acc_t(1.0);
         z[u] = gate_t(pre_z_acc);
 
-        acc_t pre_r_acc = sum_r * acc_t(0.2) + acc_t(0.5);
+        acc_t pre_r_acc = sum_r * acc_t(0.5) + acc_t(0.5);
         if (pre_r_acc < acc_t(0.0)) pre_r_acc = acc_t(0.0);
         else if (pre_r_acc > acc_t(1.0)) pre_r_acc = acc_t(1.0);
         r[u] = gate_t(pre_r_acc);
@@ -127,11 +135,10 @@ static void gru_cell_step(
         bias_t bh = int8_to_bias(bias_h[u]);
         sum_h += acc_t(bh);
 
-        // quantized_tanh default (confirmed empirically): clip(v,-1,1) then
-        // quantize to 8-bit step 1/128. state_t is ap_fixed<8,1,AP_RND,AP_SAT>
-        // so this single assignment performs exactly that clip + round --
-        // this cast is safe (unlike the gate_t bug above) because state_t
-        // is AP_SAT, not AP_WRAP, so it saturates instead of wrapping.
+        // quantized_tanh, VERIFIED: with use_real_tanh=False (default),
+        // p = 2*_sigmoid(x)-1 where _sigmoid = clip(0.5x+0.5,0,1), which
+        // reduces algebraically to clip(x,-1,1). state_t is ap_fixed<8,1,
+        // AP_RND,AP_SAT>, so this cast performs exactly that clip + round.
         state_t hh = state_t(sum_h);
 
         // h_new = z*h_prev + (1-z)*hh
