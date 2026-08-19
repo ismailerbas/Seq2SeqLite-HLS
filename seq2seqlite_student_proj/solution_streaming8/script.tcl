@@ -5,13 +5,13 @@
 ############################################################
 open_project seq2seqlite_student_proj
 set_top student_infer_frame_streaming8
-add_files src/student_weights_int8.h -cflags "-Isrc"
-add_files src/student_weight_convert.h -cflags "-Isrc"
 add_files src/student_hls_types.h -cflags "-Isrc"
-add_files src/student_top_streaming8.h -cflags "-Isrc"
-add_files src/student_top_streaming8.cpp -cflags "-Isrc"
-add_files src/student_top.h -cflags "-Isrc"
 add_files src/student_top.cpp -cflags "-Isrc"
+add_files src/student_top.h -cflags "-Isrc"
+add_files src/student_top_streaming8.cpp -cflags "-Isrc"
+add_files src/student_top_streaming8.h -cflags "-Isrc"
+add_files src/student_weight_convert.h -cflags "-Isrc"
+add_files src/student_weights_int8.h -cflags "-Isrc"
 add_files -tb E:/ismail/IBM/nminewmodel/vitis/expected_out_1.csv
 add_files -tb E:/ismail/IBM/nminewmodel/vitis/expected_out_2.csv
 add_files -tb E:/ismail/IBM/nminewmodel/vitis/expected_out_3.csv
@@ -27,7 +27,7 @@ add_files -tb E:/ismail/IBM/nminewmodel/vitis/raw_pixel_2.csv
 add_files -tb E:/ismail/IBM/nminewmodel/vitis/raw_pixel_3.csv
 add_files -tb E:/ismail/IBM/nminewmodel/vitis/raw_pixel_4.csv
 add_files -tb E:/ismail/IBM/nminewmodel/vitis/raw_pixel_5.csv
-add_files -tb src/student_tb.cpp
+add_files -tb src/student_tb.cpp -cflags "-Wno-unknown-pragmas" -csimflags "-Wno-unknown-pragmas"
 open_solution "solution_streaming8" -flow_target vivado
 set_part {xc7k410t-ffg676-1}
 create_clock -period 4.5 -name default

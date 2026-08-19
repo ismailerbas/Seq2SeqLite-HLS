@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <autopilotfilemapping:AutoPilotFileMapping xmlns:autopilotfilemapping="www.autoesl.com/autopilotfilemapping">
   <source>
-    <originFiles name="student_weights_int8.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_weights_int8.h"/>
-    <originFiles name="student_weight_convert.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_weight_convert.h"/>
-    <originFiles name="student_hls_types.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_hls_types.h"/>
-    <originFiles name="student_top_streaming8.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top_streaming8.h"/>
-    <originFiles name="student_top_streaming8.cpp" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top_streaming8.cpp"/>
-    <originFiles name="student_top.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top.h"/>
     <originFiles name="student_top.cpp" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top.cpp"/>
+    <originFiles name="student_top.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top.h"/>
+    <originFiles name="student_top_streaming8.cpp" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top_streaming8.cpp"/>
+    <originFiles name="student_top_streaming8.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_top_streaming8.h"/>
+    <originFiles name="student_hls_types.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_hls_types.h"/>
+    <originFiles name="student_weight_convert.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_weight_convert.h"/>
+    <originFiles name="student_weights_int8.h" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_weights_int8.h"/>
   </source>
   <testbench>
     <originFiles name="student_tb.cpp" path="D:\ismail\IBM\s2slitekd\hls_seq2seqlite\src\student_tb.cpp"/>
-    <originFiles name="raw_pixel_1.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_1.csv"/>
-    <originFiles name="raw_pixel_2.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_2.csv"/>
-    <originFiles name="raw_pixel_3.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_3.csv"/>
-    <originFiles name="raw_pixel_4.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_4.csv"/>
-    <originFiles name="raw_pixel_5.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_5.csv"/>
     <originFiles name="expected_out_1.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_1.csv"/>
     <originFiles name="expected_out_2.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_2.csv"/>
     <originFiles name="expected_out_3.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_3.csv"/>
@@ -26,5 +21,10 @@
     <originFiles name="expected_out_reshape_verified_3.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_reshape_verified_3.csv"/>
     <originFiles name="expected_out_reshape_verified_4.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_reshape_verified_4.csv"/>
     <originFiles name="expected_out_reshape_verified_5.csv" path="E:\ismail\IBM\nminewmodel\vitis\expected_out_reshape_verified_5.csv"/>
+    <originFiles name="raw_pixel_1.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_1.csv"/>
+    <originFiles name="raw_pixel_2.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_2.csv"/>
+    <originFiles name="raw_pixel_3.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_3.csv"/>
+    <originFiles name="raw_pixel_4.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_4.csv"/>
+    <originFiles name="raw_pixel_5.csv" path="E:\ismail\IBM\nminewmodel\vitis\raw_pixel_5.csv"/>
   </testbench>
 </autopilotfilemapping:AutoPilotFileMapping>

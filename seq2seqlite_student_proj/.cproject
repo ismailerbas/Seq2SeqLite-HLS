@@ -55,8 +55,6 @@
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include"/>
                                     									
-                                    <listOptionValue builtIn="false" value="D:/ismail/IBM/s2slitekd/hls_seq2seqlite"/>
-                                    									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include/ap_sysc"/>
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include/etc"/>
@@ -90,8 +88,6 @@
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/win64/tools/auto_cc/include"/>
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="D:/ismail/IBM/s2slitekd/hls_seq2seqlite"/>
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include/ap_sysc"/>
                                     									
@@ -183,7 +179,7 @@
                                 							
                             </option>
                             							
-                            <option id="gnu.cpp.compiler.option.other.other.1382116692" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0" valueType="string"/>
+                            <option id="gnu.cpp.compiler.option.other.other.1382116692" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-Wno-unknown-pragmas -c -fmessage-length=0" valueType="string"/>
                             							
                             <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.557396762" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
                             						
@@ -363,8 +359,6 @@
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include"/>
                                     									
-                                    <listOptionValue builtIn="false" value="D:/ismail/IBM/s2slitekd/hls_seq2seqlite"/>
-                                    									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include/ap_sysc"/>
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include/etc"/>
@@ -388,8 +382,6 @@
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/win64/tools/auto_cc/include"/>
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="D:/ismail/IBM/s2slitekd/hls_seq2seqlite"/>
                                     									
                                     <listOptionValue builtIn="false" value="D:/Xlinx/Vitis_HLS/2022.2/include/ap_sysc"/>
                                     									
@@ -471,7 +463,7 @@
                                 							
                             </option>
                             							
-                            <option id="gnu.cpp.compiler.option.other.other.1823373973" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0" valueType="string"/>
+                            <option id="gnu.cpp.compiler.option.other.other.1823373973" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-Wno-unknown-pragmas -c -fmessage-length=0" valueType="string"/>
                             							
                             <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1450951198" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
                             						

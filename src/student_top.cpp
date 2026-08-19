@@ -3,68 +3,74 @@
 #include "student_weights_int8.h"
 
 // ============================================================================
-// One GRU cell step (reset_after=False, confirmed from qkeras/qrecurrent.py
-// QGRUCell.call() source, verified line-by-line against the actual
-// implementation).
-//   z  = hard_sigmoid( x.Wz + h_prev.Uz + bz )
-//   r  = hard_sigmoid( x.Wr + h_prev.Ur + br )
-//   hh = quantized_tanh( x.Wh + (r*h_prev).Uh + bh )
-//   h_new = z*h_prev + (1-z)*hh
+// One GRU cell step, bit-matching qkeras/qrecurrent.py QGRUCell.call() for
+// THIS model's exact configuration, verified from build_student_model() in
+// Seq2SeqLite.py (the training repo) and the QKeras 0.9.0 package source:
 //
-// kernel_z/r/h    : [INPUT_DIM][GRU_UNITS]  int8 codes
-// recurrent_z/r/h : [GRU_UNITS][GRU_UNITS]  int8 codes
-// bias_z/r/h      : [GRU_UNITS]             int8 codes
+//   activation           = quantized_tanh(bits=8, symmetric=True)
+//   recurrent_activation = 'hard_sigmoid' (QGRUCell default -> QKeras's own
+//                          hard_sigmoid: clip(0.5*x + 0.5, 0, 1), slope 0.5)
+//   kernel/recurrent/bias/state quantizers = quantized_bits(8, 0, 1, alpha=1.0)
+//                          (3rd positional arg is SYMMETRIC=1)
+//   reset_after = False
 //
-// TIMING FIX (target clock period 4.5 ns): the recurrent accumulation loops
-// below are pipelined at II=4 instead of II=1. Each recurrent_* array is
-// partitioned "cyclic factor=8" at the call site (see student_infer_pixel),
-// so only 8 of the 32 recurrent weights are readable per cycle. That forces
-// the k-loop's 32-way multiply-accumulate tree to be scheduled across 4
-// cycles (32/8) instead of being flattened into a single combinational
-// stage, which is what produced the 6.75 ns 'mul' delay on the 'r' gate.
-// BIND_OP pins the accumulation multiplies onto DSP48 slices (2-cycle
-// latency) instead of LUT-fabric multipliers, which is required to close
-// timing at 4.5 ns. hstate_t (24 bit) x weight (8 bit) fits the DSP48E1
-// 25x18 multiplier, so widening the state does not change this mapping.
+// QGRUCell.call() with a state_quantizer performs, per step:
+//   qh   = Q_state(h)                      quantize carried state ON ENTRY
+//   z    = hard_sigmoid( x.Wz + qh.Uz + bz )              float output
+//   r    = hard_sigmoid( x.Wr + qh.Ur + br )              float output
+//   pre  = x.Wh + (r*qh).Uh + bh           r*qh is a FLOAT product
+//   hh   = quantized_tanh(pre)             1/128 grid, clip [-127/128,127/128]
+//   h    = z*qh + (1-z)*hh                 FLOAT blend: carried to the next
+//                                          step AND emitted as the layer
+//                                          output that QDense consumes
 //
-// CORRECTNESS FIX (hard_sigmoid overflow): sum_z/sum_r are the RAW, UNSCALED
-// pre-activation accumulator values in acc_t (ap_fixed<32,10,AP_TRN,AP_WRAP>,
-// 10 integer bits -- sized to hold a 32-term MAC sum without overflow).
-// The scaling (*0.5 + 0.5) and the [0,1] clip are performed entirely in
-// acc_t (which has the integer-bit headroom to represent the raw sum
-// exactly), and only downcast to gate_t after the value is already clipped
-// into [0,1] -- a range gate_t represents exactly, so the final narrowing
-// cast is lossless. Casting the raw unscaled sum directly into gate_t
-// before scaling would silently wrap instead of saturate.
+// Q_state (quantized_bits(8,0,symmetric=1,alpha=1.0), from
+// quantized_bits.__call__): xq = clip(round_half_even(x*128), -127, 127)/128.
+// Symmetric clip means the -128 code NEVER occurs: floor is -127/128, and
+// rounding is tf.round = round half to even. state_t is
+// ap_fixed<8,1,AP_RND_CONV,AP_SAT> (AP_RND_CONV == round half to even), whose
+// only deviation is that its saturation floor is -1.0 (code -128); the
+// clamp_symmetric() helper below bumps that single code to -127/128, making
+// the cast + clamp EXACTLY Q_state. quantized_tanh(8, symmetric=True) with
+// the default "hard" internal sigmoid reduces to the same operation applied
+// to clip(x,-1,1), so hh uses the identical cast + clamp.
 //
-// CORRECTNESS FIX (state precision, root cause of the 5/5 csim FAILs at
-// max_abs_err 0.058-0.172): verified from qkeras/qrecurrent.py
-// QGRUCell.call() -- with state_quantizer=None (this model's config;
-// extraction_report.json lists only kernel/recurrent/bias quantizers),
-// the model (a) carries the state h as the raw FLOAT blend
-// h = z*h_tm1 + (1-z)*hh, never re-quantized between steps, and (b) feeds
-// the candidate matmul with the raw FLOAT product r*h_tm1. The previous
-// version of this file quantized BOTH to 8-bit state_t, injecting up to
-// 2^-8 error per element per timestep, which compounded over the 135
-// encoder + 135 decoder steps into the observed output errors, largest at
-// the first decoder timesteps exactly where the accumulated encoder-state
-// error lands. The carried state and the r*h product now use wide hstate_t
-// (22 fractional bits); the ONLY 8-bit quantization retained is the
-// quantized_tanh producing hh, because that is the only activation the
-// trained model actually quantizes.
+// PRECISION RULES (each verified against the call() source above):
+//   - the CARRIED state h and the blend are WIDE (hstate_t): the model
+//     carries the raw float blend and only quantizes on entry.
+//   - the r*qh product feeding the Uh matmul is WIDE: never quantized.
+//   - z, r are WIDE (gate_t): hard_sigmoid output is raw float.
+//   - qh and hh are the ONLY 8-bit values, because Q_state and
+//     quantized_tanh are the only quantizers in the cell.
 //
-// quantized_tanh VERIFIED (from qkeras.quantizers.quantized_tanh.__call__
-// in the actual package source): with use_real_tanh=False (the default,
-// never overridden by qa() in extract_student_weights.py) and the default
-// "hard" internal sigmoid, p = 2*hard_sigmoid(x) - 1 with hard_sigmoid =
-// clip(0.5*x + 0.5, 0, 1). Algebraically, for any x in [-1,1] this is x
-// exactly; outside that range it saturates. The result is then rounded to
-// the 1/128 grid and clipped into [-1, 127/128] (symmetric=False). This is
-// exactly what casting into state_t (ap_fixed<8,1,AP_RND_CONV,AP_SAT>)
-// performs: AP_RND_CONV matches tf.round's round-half-to-even tie
-// behavior, and ap_fixed<8,1> saturation gives precisely [-1, +127/128].
-// No separate sigmoid/exp computation is needed or correct here.
+// TIMING (target clock period 4.5 ns): gate/candidate loops pipelined at
+// II=4 against the "cyclic factor=8" recurrent-weight partitioning at the
+// call site (8 of 32 weights readable per cycle -> 32/8 = 4 cycles), with
+// BIND_OP pinning the accumulation multiplies onto DSP48 slices (2-cycle
+// latency). The z/r/h matmul operands are back to 8-bit qh x 8-bit weight,
+// and the widest MAC operand anywhere (24-bit r_h_prev x 8-bit weight)
+// fits the DSP48E1 25x18 multiplier, so the II=4 architecture is unchanged.
 // ============================================================================
+
+// Exact QKeras symmetric 8-bit clamp: quantized_bits(8,0,symmetric=1) and
+// quantized_tanh(8,symmetric=True) both clip codes to [-127, +127], so the
+// -128 code (-1.0) that ap_fixed saturation can produce must be raised to
+// -127/128 = -0.9921875 (exactly representable in state_t).
+static inline state_t clamp_symmetric(state_t q) {
+    if (q == state_t(-1.0)) {
+        return state_t(-0.9921875);
+    }
+    return q;
+}
+
+// Q_state: quantized_bits(8, 0, symmetric=1, alpha=1.0) applied to the wide
+// carried state on entry to the cell. state_t's AP_RND_CONV cast performs
+// the round-half-even onto the 1/128 grid; clamp_symmetric applies the
+// symmetric [-127/128, +127/128] clip.
+static inline state_t quantize_state(hstate_t h) {
+    return clamp_symmetric(state_t(h));
+}
+
 static void gru_cell_step(
     input_t x,
     hstate_t h_prev[GRU_UNITS],
@@ -79,6 +85,15 @@ static void gru_cell_step(
     const int8_t bias_h[GRU_UNITS],
     hstate_t h_new[GRU_UNITS]
 ) {
+    // ---- Q_state on entry: the quantized state qh is what EVERY use of the
+    //      previous state sees inside the cell (all three matmuls, the reset
+    //      product, and the blend), exactly as in QGRUCell.call(). ----
+    state_t qh[GRU_UNITS];
+    for (int k = 0; k < GRU_UNITS; k++) {
+        #pragma HLS UNROLL
+        qh[k] = quantize_state(h_prev[k]);
+    }
+
     gate_t z[GRU_UNITS];
     gate_t r[GRU_UNITS];
 
@@ -100,8 +115,8 @@ static void gru_cell_step(
         for (int k = 0; k < GRU_UNITS; k++) {
             weight_t uz = int8_to_weight(recurrent_z[k][u]);
             weight_t ur = int8_to_weight(recurrent_r[k][u]);
-            sum_z += acc_t(h_prev[k]) * acc_t(uz);
-            sum_r += acc_t(h_prev[k]) * acc_t(ur);
+            sum_z += acc_t(qh[k]) * acc_t(uz);
+            sum_r += acc_t(qh[k]) * acc_t(ur);
         }
 
         bias_t bz = int8_to_bias(bias_z[u]);
@@ -109,13 +124,11 @@ static void gru_cell_step(
         sum_z += acc_t(bz);
         sum_r += acc_t(br);
 
-        // QGRUCell's 'hard_sigmoid' STRING resolves through get_quantizer's
-        // safe_eval against qkeras.quantizers' own namespace, NOT the
-        // standard tf.keras.backend one -- verified in the package source:
-        // clip(0.5*x + 0.5, 0, 1), slope 0.5, not 0.2. Output stays raw
-        // (unquantized) in the model. Scaling and clipping performed
-        // entirely in acc_t, then cast down to gate_t only after the value
-        // is already in [0,1].
+        // QGRUCell's default 'hard_sigmoid' STRING resolves through
+        // get_quantizer's safe_eval against qkeras.quantizers' own
+        // namespace: clip(0.5*x + 0.5, 0, 1), slope 0.5, output raw
+        // (unquantized). Scaling and clipping performed entirely in acc_t,
+        // then cast down to gate_t only after the value is already in [0,1].
         acc_t pre_z_acc = sum_z * acc_t(0.5) + acc_t(0.5);
         if (pre_z_acc < acc_t(0.0)) pre_z_acc = acc_t(0.0);
         else if (pre_z_acc > acc_t(1.0)) pre_z_acc = acc_t(1.0);
@@ -128,14 +141,13 @@ static void gru_cell_step(
     }
 
     // ---- candidate hidden state hh (reset applied BEFORE recurrent matmul,
-    //      since reset_after=False). The r*h_prev product is kept WIDE
-    //      (hstate_t), matching QGRUCell.call's raw-float r * h_tm1 --
-    //      quantizing it to 8 bits here is NOT in the model and was part
-    //      of the accumulated-error bug. ----
+    //      since reset_after=False). The reset product is r * qh -- the
+    //      QUANTIZED state -- but the PRODUCT itself stays WIDE, matching
+    //      QGRUCell.call's raw-float r * h_tm1 product. ----
     hstate_t r_h_prev[GRU_UNITS];
     for (int k = 0; k < GRU_UNITS; k++) {
         #pragma HLS UNROLL
-        r_h_prev[k] = hstate_t(r[k] * h_prev[k]);
+        r_h_prev[k] = hstate_t(r[k] * qh[k]);
     }
 
     for (int u = 0; u < GRU_UNITS; u++) {
@@ -156,20 +168,19 @@ static void gru_cell_step(
         bias_t bh = int8_to_bias(bias_h[u]);
         sum_h += acc_t(bh);
 
-        // quantized_tanh, VERIFIED from package source: reduces to
-        // clip(x,-1,1) rounded half-to-even onto the 1/128 grid, clipped to
-        // [-1, 127/128]. state_t is ap_fixed<8,1,AP_RND_CONV,AP_SAT>, so
-        // this cast performs exactly that. This is the ONLY quantization
-        // the model applies inside the cell, so it is the only 8-bit cast
-        // in this function.
-        state_t hh = state_t(sum_h);
+        // quantized_tanh(8, symmetric=True), default "hard" internal
+        // sigmoid: clip(x,-1,1) rounded half-to-even onto the 1/128 grid,
+        // clipped to [-127/128, +127/128]. state_t cast (AP_RND_CONV,
+        // AP_SAT) + clamp_symmetric is exactly that.
+        state_t hh = clamp_symmetric(state_t(sum_h));
 
-        // h_new = z*h_prev + (1-z)*hh -- computed and CARRIED WIDE, matching
-        // QGRUCell.call's raw-float blend h = z*h_tm1 + (1-z)*hh. Only hh
-        // inside the blend is on the 1/128 grid; the blend result is not,
-        // and must not be forced back onto it.
+        // h_new = z*qh + (1-z)*hh -- the blend uses the QUANTIZED state qh
+        // (verified: QGRUCell.call computes h = z*h_tm1 + (1-z)*hh where
+        // h_tm1 is the state-quantized value), and the RESULT is carried
+        // WIDE: the model's carried/output state is this raw float blend,
+        // re-quantized only on entry to the next step.
         gate_t one_minus_z = gate_t(1.0) - z[u];
-        hstate_t h_upd = hstate_t(z[u] * h_prev[u] +
+        hstate_t h_upd = hstate_t(z[u] * qh[u] +
                                   one_minus_z * hstate_t(hh));
         h_new[u] = h_upd;
     }
@@ -234,9 +245,12 @@ void student_infer_pixel(
         }
     }
 
-    // ---- decoder: init state = encoder final state (Algorithm 3, line 8),
-    //      input is always zero (confirmed: dec_arr = np.zeros_like(enc_arr)
-    //      in make_kd_dataset / run_inference) ----
+    // ---- decoder: init state = encoder final state (the WIDE float blend,
+    //      matching initial_state=encoder_state in build_student_model --
+    //      the decoder's own Q_state quantizes it on entry inside
+    //      gru_cell_step), input is always zero (confirmed:
+    //      dec_arr = np.zeros_like(enc_arr) in make_kd_dataset /
+    //      run_inference) ----
     for (int u = 0; u < GRU_UNITS; u++) {
         #pragma HLS UNROLL
         h_dec[u] = h_enc[u];
@@ -258,9 +272,11 @@ void student_infer_pixel(
         }
 
         // ---- QDense output head: y = h_dec . W + b, LINEAR, no output
-        //      quantizer attached (activation="linear", qd() only quantizes
-        //      the kernel/bias at training time). h_dec enters raw and wide,
-        //      matching the model's unquantized float state feeding QDense. ----
+        //      quantizer (activation="linear"). VERIFIED from
+        //      build_student_model: QDense consumes decoder_outputs, which
+        //      are the GRU layer's per-step outputs = the raw WIDE float
+        //      blend, NOT the quantized state. h_dec here is exactly that
+        //      blend. ----
         for (int o = 0; o < N_OUT; o++) {
             #pragma HLS PIPELINE II=4
             dense_acc_t sum_o = 0;

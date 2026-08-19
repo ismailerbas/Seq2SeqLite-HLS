@@ -125,6 +125,19 @@ static bool load_expected_out_csv(const std::string& path, double expected[SEQ_L
 // lifetimes. A PASS here means the HLS kernel numerically reproduces the
 // trained QKeras model, which is the actual correctness requirement for
 // deploying this exact model onto the FPGA.
+//
+// Also reports the amplitude-weighted MEAN LIFETIME for BOTH the HLS output
+// and the reference model output:
+//     m = a1*tau1 + (1 - a1)*tau2,   with a1 = fret = amp1/(amp1+amp2)
+// where tau1, tau2 and fret are produced by extract_lifetimes_pixel (the
+// trapezoidal-integration definition in Appendix B of the manuscript). The
+// mean-lifetime comparison is the quantity of physical interest: it states
+// how far the FPGA kernel's reported lifetime lands from the reference
+// model's, in nanoseconds, rather than in normalized decay units.
+//
+// Prints the first 20 timesteps side by side (HLS vs model, all 3 channels)
+// and writes the FULL per-timestep comparison to hls_out_<tag>.csv
+// (columns: t, hls0, hls1, hls2, exp0, exp1, exp2) in the csim run directory.
 // ----------------------------------------------------------------------------
 static double run_one_pixel_test(const std::string& tag,
                                   const double raw_pixel[SEQ_LEN],
@@ -155,6 +168,38 @@ static double run_one_pixel_test(const std::string& tag,
     }
 
 
+    printf("[%s] First 20 timesteps, HLS vs real QKeras model output:\n", tag.c_str());
+    printf("[%s]   t |     hls0     exp0 |     hls1     exp1 |     hls2     exp2\n",
+           tag.c_str());
+    for (int t = 0; t < 20 && t < SEQ_LEN; t++) {
+        printf("[%s] %3d | %8.5f %8.5f | %8.5f %8.5f | %8.5f %8.5f\n",
+               tag.c_str(), t,
+               (double)sfd_out[t][0], expected_out[t][0],
+               (double)sfd_out[t][1], expected_out[t][1],
+               (double)sfd_out[t][2], expected_out[t][2]);
+    }
+
+
+    std::string dump_path = "hls_out_" + tag + ".csv";
+    std::ofstream dump(dump_path);
+    if (dump.is_open()) {
+        dump << "t,hls0,hls1,hls2,exp0,exp1,exp2\n";
+        for (int t = 0; t < SEQ_LEN; t++) {
+            dump << t << ","
+                 << (double)sfd_out[t][0] << ","
+                 << (double)sfd_out[t][1] << ","
+                 << (double)sfd_out[t][2] << ","
+                 << expected_out[t][0] << ","
+                 << expected_out[t][1] << ","
+                 << expected_out[t][2] << "\n";
+        }
+        dump.close();
+        printf("[%s] Full 135-row comparison written to %s\n", tag.c_str(), dump_path.c_str());
+    } else {
+        printf("[%s] WARNING: could not open %s for writing\n", tag.c_str(), dump_path.c_str());
+    }
+
+
     printf("[%s] Max abs error vs real QKeras model output: %f (t=%d, o=%d)\n",
            tag.c_str(), max_abs_err, max_t, max_o);
     printf("[%s] %s\n", tag.c_str(), (max_abs_err < 0.02) ? "PASS" : "FAIL");
@@ -165,8 +210,33 @@ static double run_one_pixel_test(const std::string& tag,
     tau1_out = tau1;
     tau2_out = tau2;
     fret_out = fret;
-    printf("[%s] Lifetimes: tau1=%f ns  tau2=%f ns  fret=%f\n",
+
+
+    // Same extraction applied to the reference model output, so the two
+    // lifetime sets are produced by identical arithmetic and differ only
+    // through the decay sequences themselves.
+    output_t expected_fixed[SEQ_LEN][N_OUT];
+    for (int t = 0; t < SEQ_LEN; t++) {
+        for (int o = 0; o < N_OUT; o++) {
+            expected_fixed[t][o] = output_t(expected_out[t][o]);
+        }
+    }
+    double tau1_gt, tau2_gt, fret_gt;
+    extract_lifetimes_pixel(expected_fixed, tau1_gt, tau2_gt, fret_gt);
+
+
+    // Amplitude-weighted mean lifetime: m = a1*tau1 + (1 - a1)*tau2,
+    // with a1 = fret.
+    double mean_hls = fret * tau1 + (1.0 - fret) * tau2;
+    double mean_gt  = fret_gt * tau1_gt + (1.0 - fret_gt) * tau2_gt;
+
+
+    printf("[%s] Lifetimes HLS: tau1=%f ns  tau2=%f ns  fret=%f\n",
            tag.c_str(), tau1, tau2, fret);
+    printf("[%s] Lifetimes GT : tau1=%f ns  tau2=%f ns  fret=%f\n",
+           tag.c_str(), tau1_gt, tau2_gt, fret_gt);
+    printf("[%s] Mean lifetime  HLS=%f ns   GT=%f ns   abs_diff=%f ns\n",
+           tag.c_str(), mean_hls, mean_gt, std::fabs(mean_hls - mean_gt));
 
 
     return max_abs_err;
