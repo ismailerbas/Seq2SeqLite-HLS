@@ -173,6 +173,7 @@ void student_infer_pixel(
     input_t  tpsf_in[SEQ_LEN],
     output_t sfd_out[SEQ_LEN][N_OUT]
 ) {
+    #pragma HLS INLINE
     #pragma HLS ARRAY_PARTITION variable=sencgru_kernel_z complete dim=2
     #pragma HLS ARRAY_PARTITION variable=sencgru_kernel_r complete dim=2
     #pragma HLS ARRAY_PARTITION variable=sencgru_kernel_h complete dim=2
