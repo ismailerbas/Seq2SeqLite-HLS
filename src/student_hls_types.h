@@ -14,13 +14,34 @@
 typedef ap_fixed<8, 1, AP_TRN, AP_WRAP>  weight_t;
 typedef ap_fixed<8, 1, AP_TRN, AP_WRAP>  bias_t;
 
-// State domain: KEPT AP_RND, AP_SAT. This is not a timing-cost typedef --
-// "state_t hh = state_t(sum_h);" in gru_cell_step is the actual hardware
-// implementation of quantized_tanh's clip(-1,1) + round-to-1/128 behavior
-// from the trained QKeras model. Changing this to AP_TRN/AP_WRAP would
-// silently change model accuracy (wrap-around overflow instead of clip,
-// and truncation instead of round-to-nearest), so it must not be touched.
-typedef ap_fixed<8, 1, AP_RND, AP_SAT>  state_t;
+// quantized_tanh output domain: KEPT 8 bit with round + saturate. The cast
+// "state_t hh = state_t(sum_h);" in gru_cell_step is the hardware
+// implementation of QKeras quantized_tanh(8): verified from
+// qkeras/quantizers.py, quantized_tanh.__call__ computes
+// 2*hard_sigmoid(x)-1 (== clip(x,-1,1) for the default "hard" internal
+// sigmoid) then rounds to a 1/128 grid and clips into [-1, 127/128] --
+// exactly the range and step of ap_fixed<8,1> with saturation.
+// Rounding mode is AP_RND_CONV (round half to even), which bit-matches
+// tf.round used inside QKeras's _round_through; plain AP_RND (round half
+// toward +inf) differs from the model on exact-tie inputs.
+// This type is used ONLY for the hh candidate value, because that is the
+// ONLY place the trained model quantizes an activation in the GRU cell.
+typedef ap_fixed<8, 1, AP_RND_CONV, AP_SAT>  state_t;
+
+// Carried hidden-state domain: WIDE, deliberately NOT 8 bit. Verified from
+// qkeras/qrecurrent.py QGRUCell.call: with state_quantizer=None (this
+// model has none -- extraction_report.json contains only kernel /
+// recurrent / bias quantizers), the carried state h is the raw float32
+// blend h = z*h_tm1 + (1-z)*hh, and the reset product r*h_tm1 feeding the
+// candidate matmul is also raw float. Quantizing the carried state to
+// state_t on every timestep (as this design originally did) injects up to
+// 2^-8 error per element per step, which compounds across the 135 encoder
+// + 135 decoder recurrent steps into the 0.05-0.17 output errors observed
+// in csim. 22 fractional bits give 2.4e-7 resolution -- float32-equivalent
+// at |h| <= 1 -- and a 24-bit operand still fits the DSP48E1 25x18
+// multiplier in a single DSP alongside the 8-bit weight, so the II=4 /
+// cyclic-factor-8 timing architecture is unchanged.
+typedef ap_fixed<24, 2, AP_TRN, AP_WRAP> hstate_t;
 
 // Encoder raw input: normalized decay values in [0,1] (see eval_experimental.py
 // load_and_preprocess_mat: per-pixel max-normalized, clamped >= 0). Extra
@@ -29,17 +50,23 @@ typedef ap_fixed<8, 1, AP_RND, AP_SAT>  state_t;
 // boundary, so no rounding/saturation logic is needed on every read.
 typedef ap_fixed<16, 2, AP_TRN, AP_WRAP> input_t;
 
-// Gate activations (hard_sigmoid output), bounded to [0,1], unquantized.
-// Relaxed to AP_TRN/AP_WRAP: the hard_sigmoid clip is already implemented
-// explicitly with if/else comparisons in gru_cell_step, so the type itself
-// does not need to saturate -- the clip logic in the C code is what matters.
-typedef ap_fixed<16, 2, AP_TRN, AP_WRAP> gate_t;
+// Gate activations (hard_sigmoid output), bounded to [0,1], unquantized in
+// the model (QKeras hard_sigmoid returns raw float). Widened from 16 to 18
+// bits (16 fractional bits): gate values multiply the carried state every
+// timestep, and AP_TRN truncation bias at 2^-14 could accumulate to
+// milli-scale over 270 recurrent steps; at 2^-16 the worst-case
+// accumulated bias is far below the 0.02 verification threshold. 18-bit
+// gate x 24-bit state still fits one DSP48E1 (25x18). The hard_sigmoid
+// clip is implemented explicitly with if/else comparisons in gru_cell_step,
+// so the type itself does not need to saturate.
+typedef ap_fixed<18, 2, AP_TRN, AP_WRAP> gate_t;
 
 // Wide accumulator for MAC sums (kernel + recurrent + bias), avoids overflow
 // across up to 32 accumulated products before any clipping/quantization.
+// 22 fractional bits, so hstate_t operands cast into it exactly.
 // Relaxed to AP_TRN/AP_WRAP: this is a pure intermediate accumulator with
-// 10 integer bits of headroom for 32 accumulated 8x8-bit products, so
-// overflow saturation is not required, and rounding every partial sum is
+// 10 integer bits of headroom for 32 accumulated products, so overflow
+// saturation is not required, and rounding every partial sum is
 // unnecessary precision that was costing timing on the reset-gate multiply.
 typedef ap_fixed<32, 10, AP_TRN, AP_WRAP> acc_t;
 

@@ -1,0 +1,22 @@
+<AutoPilot:solution xmlns:AutoPilot="com.autoesl.autopilot.solution">
+    <config>
+        <config_interface m_axi_latency="0"/>
+    </config>
+    <name>
+        <value string="solution_streaming8"/>
+    </name>
+    <project>
+        <value string="seq2seqlite_student_proj"/>
+    </project>
+    <flowTarget value="vivado"/>
+    <targetInfo>
+        <TargetInfo value="xc7k410t:-ffg676:-1"/>
+    </targetInfo>
+    <libraryList>
+        <library value="xilinx/kintex7/kintex7" name="DefaultPlatform"/>
+    </libraryList>
+    <clockList>
+        <clock default="false" name="default" period="4.5"/>
+    </clockList>
+</AutoPilot:solution>
+

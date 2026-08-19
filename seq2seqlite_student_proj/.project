@@ -42,6 +42,16 @@
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution1/.tcls</location>
 		</link>
 		<link>
+			<name>solution_256px/constraints</name>
+			<type>2</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution_256px/.tcls</location>
+		</link>
+		<link>
+			<name>solution_streaming8/constraints</name>
+			<type>2</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution_streaming8/.tcls</location>
+		</link>
+		<link>
 			<name>source/student_hls_types.h</name>
 			<type>1</type>
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_hls_types.h</location>
@@ -50,6 +60,21 @@
 			<name>source/student_top.cpp</name>
 			<type>1</type>
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_top.cpp</location>
+		</link>
+		<link>
+			<name>source/student_top.h</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_top.h</location>
+		</link>
+		<link>
+			<name>source/student_top_streaming8.cpp</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_top_streaming8.cpp</location>
+		</link>
+		<link>
+			<name>source/student_top_streaming8.h</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_top_streaming8.h</location>
 		</link>
 		<link>
 			<name>source/student_weight_convert.h</name>
@@ -87,6 +112,31 @@
 			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_5.csv</location>
 		</link>
 		<link>
+			<name>testbench/expected_out_reshape_verified_1.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_reshape_verified_1.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_reshape_verified_2.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_reshape_verified_2.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_reshape_verified_3.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_reshape_verified_3.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_reshape_verified_4.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_reshape_verified_4.csv</location>
+		</link>
+		<link>
+			<name>testbench/expected_out_reshape_verified_5.csv</name>
+			<type>1</type>
+			<location>E:/ismail/IBM/nminewmodel/vitis/expected_out_reshape_verified_5.csv</location>
+		</link>
+		<link>
 			<name>testbench/raw_pixel_1.csv</name>
 			<type>1</type>
 			<location>E:/ismail/IBM/nminewmodel/vitis/raw_pixel_1.csv</location>
@@ -117,11 +167,6 @@
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/src/student_tb.cpp</location>
 		</link>
 		<link>
-			<name>solution1/constraints/.xml.directive</name>
-			<type>1</type>
-			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution1/solution1.directive</location>
-		</link>
-		<link>
 			<name>solution1/constraints/directives.tcl</name>
 			<type>1</type>
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution1/directives.tcl</location>
@@ -130,6 +175,31 @@
 			<name>solution1/constraints/script.tcl</name>
 			<type>1</type>
 			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution1/script.tcl</location>
+		</link>
+		<link>
+			<name>solution_256px/constraints/directives.tcl</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution_256px/directives.tcl</location>
+		</link>
+		<link>
+			<name>solution_256px/constraints/script.tcl</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution_256px/script.tcl</location>
+		</link>
+		<link>
+			<name>solution_streaming8/constraints/.xml.directive</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution_streaming8/solution_streaming8.directive</location>
+		</link>
+		<link>
+			<name>solution_streaming8/constraints/directives.tcl</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution_streaming8/directives.tcl</location>
+		</link>
+		<link>
+			<name>solution_streaming8/constraints/script.tcl</name>
+			<type>1</type>
+			<location>D:/ismail/IBM/s2slitekd/hls_seq2seqlite/seq2seqlite_student_proj/solution_streaming8/script.tcl</location>
 		</link>
 	</linkedResources>
 </projectDescription>
