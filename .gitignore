@@ -6,3 +6,7 @@ vitis_hls.log
 *.jou
 *.str
 *.log
+seq2seqlite_student_paper_repro_proj/
+seq2seqlite_student_paper_repro_streaming4_proj/
+seq2seqlite_student_paper_repro_streaming8_proj/
+paper_reproduction_reports/
