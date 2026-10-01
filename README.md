@@ -426,3 +426,13 @@ Repository:
 
 https://github.com/ismailerbas/Seq2SeqLite-HLS
 
+
+## Float32 teacher baseline
+
+The Table 1 float32 Seq2Seq reference baseline is provided under `teacher_baseline/`.
+See `teacher_baseline/README.md` for source, exact Vitis HLS configuration, historical and fresh synthesis reports, and reproduction instructions.
+
+## Float32 teacher baseline
+
+The Table 1 float32 Seq2Seq reference baseline is provided under teacher_baseline/.
+See teacher_baseline/README.md for source, exact Vitis HLS configuration, historical and fresh synthesis reports, and reproduction instructions.
